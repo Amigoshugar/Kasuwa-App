@@ -168,10 +168,10 @@ def forecast(history: list[tuple[date, float, bool]], days: int = 7) -> list[For
         mx, my = sum(xs) / len(xs), sum(ys) / len(ys)
         den = sum((x - mx) ** 2 for x in xs)
         if den:
-            slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / den
+            slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys, strict=True)) / den
 
     prices = [p for _, p, _ in recent]
-    diffs = [math.log(b / a) for a, b in zip(prices, prices[1:])]
+    diffs = [math.log(b / a) for a, b in zip(prices, prices[1:], strict=False)]
     sd = math.sqrt(sum(d * d for d in diffs) / len(diffs)) if diffs else 0.01
     sd = sd or 0.01
 
