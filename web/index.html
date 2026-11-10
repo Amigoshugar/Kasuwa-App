@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kasuwa Grain Prices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: indigo masthead (Kano dye-pit blue) over a scan-first price board; millet gold marks the anchor market and actions */
+  --indigo:#232f6b;
+  --gold:#c4860f;
+  --bg:#f1f2f6;
+  --surface:#ffffff;
+  --line:#dcdfe9;
+  --text:#191c2c;
+  --muted:#5a5f77;
+  --soft:#e8eaf3;
+  --up:#1d7f49;
+  --down:#b8322a;
+  --warn:#a76a00;
+  --kano:#3b4cad;
+  --kaduna:#16807f;
+  --katsina:#b8770e;
+  --mast-text:#f4f5fb;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --indigo:#1a2350; --gold:#e3a63a; --bg:#10121c; --surface:#181b29; --line:#2b2f44; --text:#e9eaf3; --muted:#9a9fb8; --soft:#22263a;
+    --up:#4cc283; --down:#f07a6e; --warn:#e3a63a; --kano:#8191ef; --kaduna:#4cc4c2; --katsina:#e9ae4c; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --indigo:#1a2350; --gold:#e3a63a; --bg:#10121c; --surface:#181b29; --line:#2b2f44; --text:#e9eaf3; --muted:#9a9fb8; --soft:#22263a;
+  --up:#4cc283; --down:#f07a6e; --warn:#e3a63a; --kano:#8191ef; --kaduna:#4cc4c2; --katsina:#e9ae4c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+.mast{background:var(--indigo);color:var(--mast-text);border-bottom:3px solid var(--gold)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.mast-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0 14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:38px;height:38px;flex:none}
+.brand h1{font-family:var(--display);font-weight:800;font-size:24px;margin:0;letter-spacing:-.01em;line-height:1.1}
+.brand p{margin:0;font-size:13px;opacity:.8}
+.mast-tools{display:flex;align-items:center;gap:14px;font-size:13px}
+.lang{display:inline-flex;border:1px solid rgba(255,255,255,.35);border-radius:999px;overflow:hidden}
+.lang button{background:none;border:0;padding:5px 12px;cursor:pointer;color:var(--mast-text)}
+.lang button[aria-pressed="true"]{background:var(--gold);color:#1b1404;font-weight:600}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav.tabs a{padding:10px 14px;text-decoration:none;font-weight:500;font-size:14px;border-radius:8px 8px 0 0;white-space:nowrap;opacity:.82}
+nav.tabs a:hover{opacity:1;background:rgba(255,255,255,.08)}
+nav.tabs a[aria-current="page"]{background:var(--bg);color:var(--text);opacity:1}
+
+.notice{display:flex;gap:10px;align-items:flex-start;margin:18px 0 0;padding:10px 14px;border:1px dashed var(--gold);border-radius:10px;font-size:13px;color:var(--muted);background:var(--surface)}
+.notice b{color:var(--text)}
+main{padding:18px 0 48px}
+section[hidden]{display:none}
+h2{font-family:var(--display);font-weight:800;font-size:26px;margin:6px 0 4px;letter-spacing:-.01em;text-wrap:balance}
+.lede{color:var(--muted);margin:0 0 16px;max-width:65ch}
+
+.controls{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;margin-bottom:16px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:500}
+select,input[type=number],input[type=tel],input[type=text]{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:150px;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--indigo);border-color:var(--indigo);color:#fff}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#1b1404}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#1b1404}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 12px;cursor:pointer;font-size:13px}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--soft);font-weight:600}
+
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tile .k{font-size:12px;color:var(--muted);font-weight:500}
+.tile .v{font-family:var(--display);font-size:24px;font-weight:800;line-height:1.2;margin-top:2px}
+.tile .s{font-size:12px;color:var(--muted)}
+@media (max-width:760px){.tiles{grid-template-columns:repeat(2,1fr)}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:12px;font-weight:600;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th.num,td.num{text-align:right}
+th button{background:none;border:0;padding:0;cursor:pointer;font-weight:600;color:inherit}
+td{padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover td{background:var(--soft)}
+.mname{font-weight:600}
+.anchor-tag{font-size:11px;color:var(--gold);font-weight:600;margin-left:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.price{font-weight:600;font-size:15px}
+.chg.up{color:var(--up)} .chg.down{color:var(--down)} .chg.flat{color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;border-radius:999px;padding:2px 9px;border:1px solid}
+.pill.high{color:var(--up);border-color:color-mix(in srgb,var(--up) 40%,transparent);background:color-mix(in srgb,var(--up) 10%,transparent)}
+.pill.medium{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent);background:color-mix(in srgb,var(--warn) 10%,transparent)}
+.pill.low{color:var(--down);border-color:color-mix(in srgb,var(--down) 40%,transparent);background:color-mix(in srgb,var(--down) 10%,transparent)}
+.tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px;margin-left:6px}
+.muted{color:var(--muted)}
+.spark{display:block}
+
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+.pad{padding:16px}
+.card h3{font-family:var(--display);font-size:17px;font-weight:800;margin:0 0 4px}
+.card .sub{font-size:13px;color:var(--muted);margin:0 0 12px}
+.bars{display:flex;flex-direction:column;gap:6px}
+.bar-row{display:grid;grid-template-columns:150px 1fr 92px;align-items:center;gap:10px;font-size:13px}
+.bar-track{height:18px;background:var(--soft);border-radius:4px;position:relative}
+.bar{height:100%;border-radius:4px}
+.bar-row .v{text-align:right;font-weight:600}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.calc .field select,.calc .field input{min-width:0;width:100%}
+.result{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--soft);font-size:14px}
+.result .big{font-family:var(--display);font-size:26px;font-weight:800}
+.opps{list-style:none;padding:0;margin:0;font-size:13px}
+.opps li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.opps li:last-child{border-bottom:0}
+
+.chart-card{padding:16px 16px 8px;position:relative}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-size:11px;font-family:var(--body)}
+.tip{position:absolute;pointer-events:none;background:var(--text);color:var(--bg);font-size:12px;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-110%);display:none}
+.statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
+@media (max-width:760px){.statrow{grid-template-columns:repeat(2,1fr)}}
+
+form.stack{display:flex;flex-direction:column;gap:12px}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.form-grid .field select,.form-grid .field input{min-width:0;width:100%}
+@media (max-width:560px){.form-grid,.calc{grid-template-columns:1fr}.bar-row{grid-template-columns:110px 1fr 80px}}
+.btn{background:var(--gold);color:#1b1404;border:0;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer;align-self:flex-start}
+.btn:hover{filter:brightness(1.05)}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--text)}
+.alerts-list{list-style:none;margin:0;padding:0}
+.alerts-list li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.alerts-list li:last-child{border-bottom:0}
+.status{font-size:12px;font-weight:600}
+.status.ok{color:var(--up)} .status.bad{color:var(--down)} .status.held{color:var(--warn)}
+.compare-line{display:flex;gap:20px;flex-wrap:wrap;margin-top:6px}
+.compare-line div{min-width:140px}
+.howto{margin-top:28px}
+.howto ol{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0;margin:0;list-style:none;counter-reset:s}
+.howto li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:13px;color:var(--muted);counter-increment:s}
+.howto li b{display:block;color:var(--text);font-size:14px;margin-bottom:4px}
+.howto li b::before{content:counter(s) ". ";color:var(--gold)}
+@media (max-width:860px){.howto ol{grid-template-columns:repeat(2,1fr)}}
+.hero{display:grid;grid-template-columns:1fr 1.05fr;gap:24px;align-items:center;background:var(--indigo);color:var(--mast-text);border-radius:16px;padding:28px 28px 0 32px;margin:4px 0 22px;overflow:hidden}
+.hero h2{color:var(--mast-text);font-size:34px;line-height:1.1;margin:0 0 10px}
+.hero p{margin:0 0 16px;opacity:.85;max-width:46ch}
+.hero-stats{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:18px}
+.hero-stats b{display:block;font-family:var(--display);font-size:24px;color:var(--gold)}
+.hero-stats span{font-size:12px;opacity:.8}
+.hero-cta{display:flex;gap:10px;flex-wrap:wrap;padding-bottom:28px}
+.hero .btn.ghost{color:var(--mast-text);border-color:rgba(255,255,255,.4);text-decoration:none}
+.hero-art{align-self:end;line-height:0}
+.hero-art svg{width:100%;height:auto;display:block}
+@media (max-width:820px){.hero{grid-template-columns:1fr;padding:22px 20px 0}.hero h2{font-size:27px}.hero-cta{padding-bottom:8px}}
+.com-head{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 16px;margin-bottom:12px}
+.com-head .ic{width:56px;height:56px;flex:none;border-radius:12px;background:var(--soft);display:grid;place-items:center}
+.com-head h3{font-family:var(--display);font-weight:800;font-size:20px;margin:0}
+.com-head p{margin:0;font-size:13px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px}
+.chip svg{width:20px;height:20px;flex:none}
+.mini-ic{width:28px;height:28px;vertical-align:middle;margin-right:8px}
+.report-art{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.report-art svg{width:84px;height:84px;flex:none}
+footer{color:var(--muted);font-size:12px;padding:0 0 30px}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="wrap">
+    <div class="mast-row">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="9" fill="none" stroke="#c4860f" stroke-width="2.5"/><path d="M20 30V12M20 16c-4-1-6-4-6-6 3 0 5 2 6 4M20 16c4-1 6-4 6-6-3 0-5 2-6 4M20 22c-4-1-6-4-6-6 3 0 5 2 6 4M20 22c4-1 6-4 6-6-3 0-5 2-6 4" fill="none" stroke="#f4f5fb" stroke-width="2" stroke-linecap="round"/></svg>
+        <div>
+          <h1>Kasuwa</h1>
+          <p id="tagline">Daily grain prices · Kano, Kaduna, Katsina</p>
+        </div>
+      </div>
+      <div class="mast-tools">
+        <span id="asof"></span>
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" data-lang="en" aria-pressed="true">English</button>
+          <button type="button" data-lang="ha" aria-pressed="false">Hausa</button>
+        </div>
+      </div>
+    </div>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#prices" data-view="prices" data-i="prices">Prices</a>
+      <a href="#compare" data-view="compare" data-i="compare">Compare markets</a>
+      <a href="#trends" data-view="trends" data-i="trends">Trends</a>
+      <a href="#alerts" data-view="alerts" data-i="alerts">Alerts</a>
+      <a href="#report" data-view="report" data-i="report">Report a price</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="notice"><span aria-hidden="true">◆</span><span data-i="sample">Sample data. Prices are generated by the price model for illustration until field agents start reporting.</span></div>
+</div>
+
+<main class="wrap">
+  <!-- PRICES -->
+  <section id="v-prices" data-section="prices">
+    <div class="hero">
+      <div>
+        <h2 data-i="heroTitle">Know today's price before you sell</h2>
+        <p data-i="heroLede">Daily prices for maize, sorghum, soybeans, sesame, beans and more from 18 markets in Kano, Kaduna and Katsina.</p>
+        <div class="hero-stats">
+          <div><b>18</b><span data-i="hsMarkets">markets</span></div>
+          <div><b>12</b><span data-i="hsGrades">grain grades</span></div>
+          <div><b>12:00 · 18:00</b><span data-i="hsUpdates">updated twice daily</span></div>
+        </div>
+        <div class="hero-cta">
+          <button type="button" class="btn" id="goBoard" data-i="ctaPrices">See today's prices</button>
+          <a class="btn ghost" href="#report" data-i="ctaReport">Report a price</a>
+        </div>
+      </div>
+      <div class="hero-art"><svg viewBox="0 0 560 270" role="img" aria-label="A grain market: sacks of grain, a mudu bowl of maize and sorghum stalks in front of a Hausa-style building">
+ <circle cx="478" cy="62" r="34" fill="#e3a63a" opacity=".95"/>
+ <circle cx="478" cy="62" r="46" fill="#e3a63a" opacity=".15"/>
+ <g>
+  <path d="M150 74 L150 34 Q160 54 172 74 Z M430 74 L430 34 Q420 54 408 74 Z M281 74 L290 30 L299 74 Z" fill="#c9884a"/>
+  <rect x="150" y="72" width="280" height="160" rx="4" fill="#c9884a"/>
+  <rect x="150" y="72" width="280" height="160" rx="4" fill="url(#mud)" opacity=".25"/>
+  <polyline points="166,96 182,86 198,96 214,86 230,96 246,86 262,96 278,86 294,96 310,86 326,96 342,86 358,96 374,86 390,96 406,86 414,91" fill="none" stroke="#f1d3a8" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M258 232 V160 Q290 118 322 160 V232 Z" fill="#5b3418"/>
+  <path d="M250 232 V158 Q290 108 330 158 V232" fill="none" stroke="#f1d3a8" stroke-width="3"/>
+  <path d="M178 150 v-18 q12 -16 24 0 v18 Z M378 150 v-18 q12 -16 24 0 v18 Z" fill="#5b3418"/>
+  <path d="M290 122 l7 9 -7 9 -7 -9 Z M206 116 l6 8 -6 8 -6 -8 Z M374 116 l6 8 -6 8 -6 -8 Z" fill="#f1d3a8"/>
+ </g>
+ <defs><pattern id="mud" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#7a4a22"/><circle cx="6" cy="6" r=".8" fill="#7a4a22"/></pattern></defs>
+ <rect x="0" y="228" width="560" height="42" fill="#8a5a30"/>
+ <rect x="0" y="228" width="560" height="5" fill="#a26c3b"/>
+ <g stroke="#6f8f3a" stroke-width="3" fill="none" stroke-linecap="round">
+  <path d="M58 232 Q52 160 66 92"/><path d="M90 232 Q96 170 84 108"/><path d="M58 190 q-20 -8 -26 -26 M60 150 q18 -10 30 -6 M90 190 q20 -6 28 -24"/>
+ </g>
+ <g fill="#a8452d">
+  <circle cx="66" cy="88" r="5"/><circle cx="60" cy="80" r="5"/><circle cx="72" cy="80" r="5"/><circle cx="64" cy="72" r="5"/><circle cx="74" cy="92" r="4.5"/><circle cx="56" cy="91" r="4.5"/><circle cx="68" cy="64" r="4.5"/><circle cx="58" cy="100" r="4"/><circle cx="76" cy="70" r="4"/>
+ </g>
+ <g fill="#efe3c6">
+  <circle cx="84" cy="104" r="4.5"/><circle cx="79" cy="97" r="4.5"/><circle cx="90" cy="97" r="4.5"/><circle cx="84" cy="90" r="4.5"/><circle cx="92" cy="108" r="4"/><circle cx="77" cy="108" r="4"/><circle cx="88" cy="84" r="4"/>
+ </g>
+ <g>
+  <path d="M108 236 Q100 196 112 172 Q118 162 130 160 L170 160 Q182 162 188 172 Q200 196 192 236 Z" fill="#e7d6b0" stroke="#b79b63" stroke-width="2"/>
+  <path d="M130 160 Q150 146 170 160" fill="#e7d6b0" stroke="#b79b63" stroke-width="2"/>
+  <path d="M142 152 h16" stroke="#7a5a2a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M114 196 h72" stroke="#3b4cad" stroke-width="3" opacity=".7"/><path d="M114 204 h72" stroke="#3b4cad" stroke-width="3" opacity=".7"/>
+  <text x="150" y="224" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" font-weight="600" fill="#7a5a2a">100 kg</text>
+  <path d="M186 238 Q180 200 190 180 Q196 170 208 168 L246 168 Q258 170 264 180 Q274 200 268 238 Z" fill="#dcc79a" stroke="#b79b63" stroke-width="2"/>
+  <path d="M208 168 Q227 154 246 168" fill="#dcc79a" stroke="#b79b63" stroke-width="2"/>
+  <path d="M220 160 h14" stroke="#7a5a2a" stroke-width="4" stroke-linecap="round"/>
+  <text x="227" y="222" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" font-weight="600" fill="#7a5a2a">WAKE</text>
+  <path d="M146 162 Q140 132 150 116 Q156 108 166 106 L200 106 Q210 108 216 116 Q226 132 220 162 Z" fill="#efe1bf" stroke="#b79b63" stroke-width="2"/>
+  <path d="M166 106 Q183 94 200 106" fill="#efe1bf" stroke="#b79b63" stroke-width="2"/>
+  <path d="M176 99 h14" stroke="#7a5a2a" stroke-width="4" stroke-linecap="round"/>
+  <text x="183" y="146" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" font-weight="600" fill="#7a5a2a">MASARA</text>
+ </g>
+ <g>
+  <ellipse cx="420" cy="214" rx="62" ry="22" fill="#f2c230"/>
+  <g fill="#d49b12"><circle cx="392" cy="208" r="3"/><circle cx="404" cy="200" r="3"/><circle cx="418" cy="196" r="3"/><circle cx="432" cy="198" r="3"/><circle cx="446" cy="204" r="3"/><circle cx="412" cy="210" r="3"/><circle cx="428" cy="208" r="3"/><circle cx="442" cy="214" r="3"/><circle cx="398" cy="218" r="3"/><circle cx="420" cy="220" r="3"/></g>
+  <path d="M356 214 Q360 258 420 260 Q480 258 484 214 Z" fill="#9b4f24"/>
+  <path d="M362 230 Q420 244 478 230" fill="none" stroke="#e3a63a" stroke-width="3"/>
+  <path d="M372 244 l8 -6 8 6 8 -6 8 6 8 -6 8 6 8 -6 8 6 8 -6 8 6 8 -6" fill="none" stroke="#f1d3a8" stroke-width="2"/>
+ </g>
+ <g fill="#f2c230"><circle cx="500" cy="252" r="3"/><circle cx="510" cy="246" r="3"/><circle cx="518" cy="254" r="3"/><circle cx="492" cy="258" r="3"/></g>
+ <g fill="#f4ecd8"><circle cx="300" cy="252" r="2.4"/><circle cx="308" cy="256" r="2.4"/><circle cx="316" cy="250" r="2.4"/></g>
+</svg></div>
+    </div>
+    <h2 data-i="pricesTitle" id="boardTitle">Today's prices across 18 markets</h2>
+    <p class="lede" data-i="pricesLede">The price a farmer can sell for, per 100 kg bag, built from agent, trader and farmer reports. Tap a market to see its trend.</p>
+    <div class="controls">
+      <div class="field"><span data-i="commodity">Commodity</span><div class="chips" id="comChips"></div></div>
+    </div>
+    <div class="controls">
+      <div class="field"><span data-i="state">State</span><div class="seg" id="stateSeg"></div></div>
+      <div class="field"><span data-i="unit">Unit</span><div class="seg" id="unitSeg"></div></div>
+    </div>
+    <div class="com-head" id="comHead"></div>
+    <div class="tiles" id="tiles"></div>
+    <div class="card table-wrap"><table id="board"></table></div>
+  </section>
+
+  <!-- COMPARE -->
+  <section id="v-compare" data-section="compare" hidden>
+    <h2 data-i="compareTitle">Where does it sell for more?</h2>
+    <p class="lede" data-i="compareLede">One commodity across every market, and what a farmer keeps after moving bags to a better market.</p>
+    <div class="controls">
+      <label class="field" for="cmpCom"><span data-i="commodity">Commodity</span><select id="cmpCom"></select></label>
+    </div>
+    <div class="grid2">
+      <div class="card pad">
+        <div id="cmpHead" class="report-art"></div>
+        <h3 data-i="ranked">Price by market, per 100 kg bag</h3>
+        <p class="sub" data-i="rankedSub">Highest first. Gold outline marks Dawanau, the anchor market.</p>
+        <div class="bars" id="bars"></div>
+        <div class="legend" id="stateLegend"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card pad">
+          <h3 data-i="arbTitle">Is the trip worth it?</h3>
+          <p class="sub" data-i="arbSub">Price gap minus your transport cost per bag.</p>
+          <div class="calc">
+            <label class="field" for="arbFrom"><span data-i="from">From market</span><select id="arbFrom"></select></label>
+            <label class="field" for="arbTo"><span data-i="to">To market</span><select id="arbTo"></select></label>
+            <label class="field" for="arbCost"><span data-i="cost">Transport, ₦ per bag</span><input id="arbCost" type="number" min="0" step="100" value="2500"></label>
+            <label class="field" for="arbBags"><span data-i="bags">Number of bags</span><input id="arbBags" type="number" min="1" step="1" value="20"></label>
+          </div>
+          <div class="result" id="arbResult"></div>
+        </div>
+        <div class="card pad">
+          <h3 data-i="oppTitle">Best moves today</h3>
+          <p class="sub" data-i="oppSub">Largest gain per bag after the transport cost above.</p>
+          <ul class="opps" id="opps"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRENDS -->
+  <section id="v-trends" data-section="trends" hidden>
+    <h2 data-i="trendsTitle">Price history and 7-day outlook</h2>
+    <p class="lede" data-i="trendsLede">The line is the published daily price; the shaded band is the day's low–high range. Hollow points are estimates.</p>
+    <div class="controls">
+      <label class="field" for="trMarket"><span data-i="market">Market</span><select id="trMarket"></select></label>
+      <label class="field" for="trCom"><span data-i="commodity">Commodity</span><select id="trCom"></select></label>
+      <div class="field"><span data-i="period">Period</span><div class="seg" id="periodSeg"></div></div>
+    </div>
+    <div class="com-head" id="trHead"></div>
+    <div class="statrow" id="trStats"></div>
+    <div class="card chart-card"><div class="chart" id="trChart"></div><div class="tip" id="tip"></div></div>
+    <div class="card table-wrap" style="margin-top:16px"><table id="trTable"></table></div>
+  </section>
+
+  <!-- ALERTS -->
+  <section id="v-alerts" data-section="alerts" hidden>
+    <h2 data-i="alertsTitle">Price alerts</h2>
+    <p class="lede" data-i="alertsLede">Get a text when a price crosses your target. Alerts are saved in this browser; SMS delivery starts when the SMS gateway is connected.</p>
+    <div class="grid2">
+      <div class="card pad">
+        <h3 data-i="newAlert">New alert</h3>
+        <form class="stack" id="alertForm">
+          <div class="form-grid">
+            <label class="field" for="alCom"><span data-i="commodity">Commodity</span><select id="alCom"></select></label>
+            <label class="field" for="alMarket"><span data-i="market">Market</span><select id="alMarket"></select></label>
+            <label class="field" for="alCond"><span data-i="when">When price is</span><select id="alCond"><option value="above">above</option><option value="below">below</option></select></label>
+            <label class="field" for="alPrice"><span data-i="target">Target, ₦ per bag</span><input id="alPrice" type="number" min="0" step="500" required></label>
+            <label class="field" for="alPhone" style="grid-column:1/-1"><span data-i="phone">Phone number</span><input id="alPhone" type="tel" placeholder="080..." required></label>
+          </div>
+          <button class="btn" type="submit" data-i="save">Save alert</button>
+        </form>
+      </div>
+      <div class="card pad">
+        <h3 data-i="yourAlerts">Your alerts</h3>
+        <ul class="alerts-list" id="alertList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section id="v-report" data-section="report" hidden>
+    <h2 data-i="reportTitle">Report a price</h2>
+    <p class="lede" data-i="reportLede">Send what you saw at the market. The model checks it against today's other reports and updates the published price straight away.</p>
+    <div class="grid2">
+      <div class="card pad">
+        <div class="report-art"><svg viewBox="0 0 84 84" aria-hidden="true"><rect x="22" y="6" width="40" height="72" rx="7" fill="var(--indigo)"/><rect x="26" y="14" width="32" height="52" rx="3" fill="var(--surface)"/><rect x="30" y="20" width="24" height="5" rx="2" fill="var(--gold)"/><rect x="30" y="30" width="18" height="3" rx="1.5" fill="var(--line)"/><rect x="30" y="37" width="22" height="3" rx="1.5" fill="var(--line)"/><rect x="30" y="44" width="14" height="3" rx="1.5" fill="var(--line)"/><text x="42" y="61" text-anchor="middle" font-size="7" font-weight="700" fill="var(--indigo)" font-family="IBM Plex Sans, sans-serif">₦</text><circle cx="42" cy="72" r="2.5" fill="var(--surface)"/><path d="M4 70 Q8 56 20 58 L20 78 L4 78 Z" fill="#e7d6b0" stroke="#b79b63" stroke-width="1.5"/><path d="M64 60 Q70 50 80 56 Q82 70 72 78 L64 78 Z" fill="#f2c230"/></svg><div><h3 data-i="repArtTitle">Saw a price at the market?</h3><p class="sub" style="margin:0" data-i="repArtSub">Agents, traders and farmers all help keep prices honest.</p></div></div>
+        <form class="stack" id="repForm">
+          <div class="form-grid">
+            <label class="field" for="repType"><span data-i="youAre">You are</span><select id="repType"><option value="agent">Market agent</option><option value="trader">Trader</option><option value="farmer">Farmer</option></select></label>
+            <label class="field" for="repMarket"><span data-i="market">Market</span><select id="repMarket"></select></label>
+            <label class="field" for="repCom"><span data-i="commodity">Commodity</span><select id="repCom"></select></label>
+            <label class="field" for="repUnit"><span data-i="unit">Unit</span><select id="repUnit"><option value="bag100">100 kg bag</option><option value="bag50">50 kg bag</option><option value="mudu">Mudu</option></select></label>
+            <label class="field" for="repPrice" style="grid-column:1/-1"><span data-i="priceSeen">Price you saw, ₦</span><input id="repPrice" type="number" min="1" step="10" required></label>
+          </div>
+          <button class="btn" type="submit" data-i="send">Send report</button>
+        </form>
+        <div class="result" id="repResult" hidden></div>
+      </div>
+      <div class="card pad">
+        <h3 data-i="todayReports">Today's reports for this market</h3>
+        <p class="sub" id="repSummary"></p>
+        <div class="table-wrap"><table id="repTable"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="howto">
+    <h2 style="font-size:20px" data-i="howTitle">How each price is made</h2>
+    <ol>
+      <li><b data-i="h1">Collect</b><span data-i="h1d">Paid agents report twice a day; traders and farmers report by app, WhatsApp or USSD.</span></li>
+      <li><b data-i="h2">Clean</b><span data-i="h2d">Every report is converted to ₦ per 100 kg. Reports far from the rest are set aside.</span></li>
+      <li><b data-i="h3">Combine</b><span data-i="h3d">A trust-weighted median gives the price; agents count most, anonymous reports least.</span></li>
+      <li><b data-i="h4">Score</b><span data-i="h4d">Confidence rises with more reporters and closer agreement. Gaps are estimated and labelled.</span></li>
+    </ol>
+  </div>
+</main>
+<footer class="wrap" data-i="foot">Prices are sample data from the Kasuwa price model. Mudu weights are approximate and vary by market. Hausa labels need review by a native speaker.</footer>
+
+<script>
+(function(){
+"use strict";
+/* ---------- reference data ---------- */
+const COMS=[
+ {id:"maize-w",art:{k:"maize",c:"#f3ead2",d:"#d2c19a"},n:{en:"Maize",ha:"Masara"},g:{en:"White",ha:"Fara"},base:36000,amp:.22,mudu:1.6},
+ {id:"maize-y",art:{k:"maize",c:"#f2c230",d:"#c98d0c"},n:{en:"Maize",ha:"Masara"},g:{en:"Yellow",ha:"Rawaya"},base:38500,amp:.22,mudu:1.6},
+ {id:"sorg-w",art:{k:"sorghum",c:"#efe3c6",d:"#c9b78c"},n:{en:"Sorghum",ha:"Dawa"},g:{en:"White",ha:"Fara"},base:40000,amp:.18,mudu:1.6},
+ {id:"sorg-r",art:{k:"sorghum",c:"#a8452d",d:"#7a2e1c"},n:{en:"Sorghum",ha:"Dawa"},g:{en:"Red",ha:"Ja"},base:37000,amp:.18,mudu:1.6},
+ {id:"soy",art:{k:"soy"},n:{en:"Soybeans",ha:"Waken soya"},g:{en:"",ha:""},base:62000,amp:.12,mudu:1.4},
+ {id:"ses-w",art:{k:"sesame",c:"#f4ecd8",d:"#c9b98f"},n:{en:"Sesame",ha:"Ridi"},g:{en:"White",ha:"Fari"},base:115000,amp:.10,mudu:1.3},
+ {id:"ses-m",art:{k:"sesame",c:"#d9c08c",d:"#9c7a46",mix:true},n:{en:"Sesame",ha:"Ridi"},g:{en:"Mixed",ha:"Gauraye"},base:98000,amp:.10,mudu:1.3},
+ {id:"bean-w",art:{k:"beans",c:"#f6f1e6",eye:"#2b2b2b"},n:{en:"Beans",ha:"Wake"},g:{en:"White",ha:"Fari"},base:88000,amp:.15,mudu:1.7},
+ {id:"bean-b",art:{k:"beans",c:"#9a5531"},n:{en:"Beans",ha:"Wake"},g:{en:"Brown (drum)",ha:"Ja"},base:95000,amp:.15,mudu:1.7},
+ {id:"millet",art:{k:"millet"},n:{en:"Millet",ha:"Gero"},g:{en:"",ha:""},base:42000,amp:.18,mudu:1.7},
+ {id:"gnut",art:{k:"gnut"},n:{en:"Groundnut",ha:"Gyada"},g:{en:"Shelled",ha:"Ɓararre"},base:72000,amp:.12,mudu:1.1},
+ {id:"rice",art:{k:"rice"},n:{en:"Rice",ha:"Shinkafa"},g:{en:"Paddy",ha:"Da ɓawo"},base:47000,amp:.14,mudu:1.1}
+];
+const MARKETS=[
+ {id:"dawanau",name:"Dawanau",st:"Kano",off:0,daily:true,anchor:true},
+ {id:"singer",name:"Singer",st:"Kano",off:.025,daily:true},
+ {id:"bichi",name:"Bichi",st:"Kano",off:-.05,day:3},
+ {id:"gwarzo",name:"Gwarzo",st:"Kano",off:-.07,day:4},
+ {id:"kura",name:"Kura",st:"Kano",off:-.04,day:1},
+ {id:"wudil",name:"Wudil",st:"Kano",off:-.05,day:4},
+ {id:"giwa",name:"Giwa",st:"Kaduna",off:-.06,day:4},
+ {id:"makarfi",name:"Makarfi",st:"Kaduna",off:-.085,day:2},
+ {id:"zaria",name:"Zaria (Sabon Gari)",st:"Kaduna",off:-.02,daily:true},
+ {id:"ikara",name:"Ikara",st:"Kaduna",off:-.07,day:5},
+ {id:"saminaka",name:"Saminaka",st:"Kaduna",off:-.06,day:4},
+ {id:"kawo",name:"Kawo (Kaduna city)",st:"Kaduna",off:.035,daily:true},
+ {id:"charanchi",name:"Charanchi",st:"Katsina",off:-.06,day:0},
+ {id:"funtua",name:"Funtua",st:"Katsina",off:-.04,daily:true},
+ {id:"dandume",name:"Dandume",st:"Katsina",off:-.075,day:4},
+ {id:"malumfashi",name:"Malumfashi",st:"Katsina",off:-.05,day:6},
+ {id:"jibia",name:"Jibia",st:"Katsina",off:-.03,day:3},
+ {id:"katsina",name:"Katsina central",st:"Katsina",off:0,daily:true}
+];
+const STATES=["Kano","Kaduna","Katsina"];
+const WEIGHT={sale:1,agent:.9,trader:.6,farmer:.3};
+const N=120;
+
+/* ---------- commodity illustrations (drawn, 48x48) ---------- */
+const ICON={
+ maize:(c,d)=>`<path d="M24 44 C14 38 10 26 14 12 C18 22 20 30 24 36Z" fill="#7aa04a"/><path d="M24 44 C34 38 38 26 34 12 C30 22 28 30 24 36Z" fill="#5f8a36"/><ellipse cx="24" cy="22" rx="8" ry="17" fill="${c}"/>${[8,13,18,23,28,33].map(y=>[20,24,28].map(x=>`<circle cx="${x}" cy="${y}" r="1.7" fill="${d}"/>`).join("")).join("")}`,
+ sorghum:(c,d)=>`<path d="M24 46 V24" stroke="#6f8f3a" stroke-width="2.5"/><path d="M24 36 q-9 -2 -12 -9 M24 32 q9 -2 12 -8" stroke="#6f8f3a" stroke-width="2" fill="none"/>${[[24,8],[19,11],[29,11],[24,14],[18,17],[30,17],[24,20],[21,24],[27,24],[15,13],[33,13],[24,4]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.4" fill="${c}" stroke="${d}" stroke-width=".8"/>`).join("")}`,
+ soy:()=>`<path d="M8 34 C10 20 24 10 40 10 C40 24 28 38 10 38 Z" fill="#a3ad5c" stroke="#7d8a3c" stroke-width="1.5"/>${[[16,30],[23,24],[31,17]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="#e3cf86" stroke="#c2a95a" stroke-width="1"/>`).join("")}<path d="M40 10 q4 -4 2 -8" stroke="#7d8a3c" stroke-width="2" fill="none"/>`,
+ sesame:(c,d,mix)=>[[12,14,-30],[22,10,10],[33,14,35],[16,26,-10],[27,23,20],[37,28,50],[12,37,-40],[23,36,0],[33,39,30]].map(([x,y,r],i)=>`<path transform="translate(${x} ${y}) rotate(${r})" d="M0 -6 C4 -3 4 3 0 6 C-4 3 -4 -3 0 -6Z" fill="${mix&&i%3===1?"#6b4a2f":c}" stroke="${d}" stroke-width=".9"/>`).join(""),
+ beans:(c,eye)=>[[16,16,-20],[31,14,25],[13,31,10],[27,29,-15],[37,36,30],[22,40,5]].map(([x,y,r])=>`<g transform="translate(${x} ${y}) rotate(${r})"><path d="M-8 0 C-8 -6 8 -7 8 -1 C8 3 3 2 0 4 C-4 6 -8 4 -8 0Z" fill="${c}" stroke="rgba(0,0,0,.25)" stroke-width=".8"/>${eye?`<ellipse cx="1" cy="1.5" rx="2.2" ry="1.3" fill="${eye}"/>`:""}</g>`).join(""),
+ millet:()=>`<path d="M24 46 V36" stroke="#6f8f3a" stroke-width="2.5"/><path d="M24 44 q-8 -2 -10 -8" stroke="#6f8f3a" stroke-width="2" fill="none"/><rect x="18" y="4" width="12" height="34" rx="6" fill="#c9a85a"/>${[8,12,16,20,24,28,32].map(y=>[21,24,27].map(x=>`<circle cx="${x}" cy="${y}" r="1.4" fill="#9c7a32"/>`).join("")).join("")}`,
+ gnut:()=>`<path d="M14 10 C6 12 6 24 14 26 C10 32 14 42 24 40 C32 38 34 28 28 24 C34 18 30 6 20 8 C18 8 16 9 14 10Z" fill="#c9a072" stroke="#9c7448" stroke-width="1.4"/><path d="M14 16 h10 M13 21 h14 M16 31 h12 M18 35 h8" stroke="#9c7448" stroke-width="1"/><ellipse cx="36" cy="36" rx="5" ry="6.5" fill="#b0603a" transform="rotate(25 36 36)"/><ellipse cx="38" cy="18" rx="4.5" ry="6" fill="#b0603a" transform="rotate(-20 38 18)"/>`,
+ rice:()=>`<path d="M10 46 C16 30 26 14 40 8" stroke="#8aa04a" stroke-width="2.4" fill="none"/>${[[18,32,40],[22,25,35],[27,19,30],[32,14,25],[37,10,20],[14,38,45],[24,31,-30],[29,24,-35],[34,18,-40]].map(([x,y,r])=>`<ellipse cx="${x}" cy="${y}" rx="2.6" ry="5" fill="#d9b45a" stroke="#a9852f" stroke-width=".7" transform="rotate(${r} ${x} ${y})"/>`).join("")}`
+};
+function comIcon(c,size){
+  const a=c.art,body=a.k==="maize"?ICON.maize(a.c,a.d):a.k==="sorghum"?ICON.sorghum(a.c,a.d):a.k==="sesame"?ICON.sesame(a.c,a.d,a.mix):a.k==="beans"?ICON.beans(a.c,a.eye):ICON[a.k]();
+  return `<svg viewBox="0 0 48 48" width="${size}" height="${size}" aria-hidden="true">${body}</svg>`;
+}
+
+/* ---------- i18n ---------- */
+const T={
+ en:{prices:"Prices",compare:"Compare markets",trends:"Trends",alerts:"Alerts",report:"Report a price",
+  sample:"Sample data. Prices are generated by the price model for illustration until field agents start reporting.",
+  pricesTitle:"Today's prices across 18 markets",pricesLede:"The price a farmer can sell for, per 100 kg bag, built from agent, trader and farmer reports. Tap a market to see its trend.",
+  commodity:"Commodity",state:"State",unit:"Unit",all:"All",bag:"100 kg bag",mudu:"Mudu",market:"Market",price:"Price",range:"Low–high",d1:"vs yesterday",d7:"7 days",conf:"Confidence",trend:"30 days",reports:"Reports",
+  cheapest:"Cheapest market",dearest:"Highest market",avg:"Average",anchor7:"Dawanau, 7 days",high:"High",medium:"Medium",low:"Low",est:"Estimated",closed:"Closed today",stale:"No recent data",
+  compareTitle:"Where does it sell for more?",compareLede:"One commodity across every market, and what a farmer keeps after moving bags to a better market.",
+  ranked:"Price by market, per 100 kg bag",rankedSub:"Highest first. Gold outline marks Dawanau, the anchor market.",arbTitle:"Is the trip worth it?",arbSub:"Price gap minus your transport cost per bag.",
+  from:"From market",to:"To market",cost:"Transport, ₦ per bag",bags:"Number of bags",oppTitle:"Best moves today",oppSub:"Largest gain per bag after the transport cost above.",
+  trendsTitle:"Price history and 7-day outlook",trendsLede:"The line is the published daily price; the shaded band is the day's low–high range. Hollow points are estimates.",period:"Period",
+  alertsTitle:"Price alerts",alertsLede:"Get a text when a price crosses your target. Alerts are saved in this browser; SMS delivery starts when the SMS gateway is connected.",
+  newAlert:"New alert",when:"When price is",target:"Target, ₦ per bag",phone:"Phone number",save:"Save alert",yourAlerts:"Your alerts",
+  reportTitle:"Report a price",reportLede:"Send what you saw at the market. The model checks it against today's other reports and updates the published price straight away.",
+  youAre:"You are",priceSeen:"Price you saw, ₦",send:"Send report",todayReports:"Today's reports for this market",
+  howTitle:"How each price is made",h1:"Collect",h1d:"Paid agents report twice a day; traders and farmers report by app, WhatsApp or USSD.",h2:"Clean",h2d:"Every report is converted to ₦ per 100 kg. Reports far from the rest are set aside.",h3:"Combine",h3d:"A trust-weighted median gives the price; agents count most, anonymous reports least.",h4:"Score",h4d:"Confidence rises with more reporters and closer agreement. Gaps are estimated and labelled.",
+  foot:"Prices are sample data from the Kasuwa price model. Mudu weights are approximate and vary by market. Hausa labels need review by a native speaker.",
+  tagline:"Daily grain prices · Kano, Kaduna, Katsina",asof:"Prices for",heroTitle:"Know today's price before you sell",heroLede:"Daily prices for maize, sorghum, soybeans, sesame, beans and more from 18 markets in Kano, Kaduna and Katsina.",hsMarkets:"markets",hsGrades:"grain grades",hsUpdates:"updated twice daily",ctaPrices:"See today's prices",ctaReport:"Report a price",repArtTitle:"Saw a price at the market?",repArtSub:"Agents, traders and farmers all help keep prices honest."},
+ ha:{prices:"Farashi",compare:"Kwatanta kasuwanni",trends:"Yanayin farashi",alerts:"Sanarwa",report:"Aiko da farashi",
+  sample:"Bayanan misali. Farashin nan na gwaji ne har sai wakilan kasuwa sun fara aiko da farashi.",
+  pricesTitle:"Farashin yau a kasuwanni 18",pricesLede:"Farashin da manomi zai iya sayarwa, kowane buhu na kilo 100, daga rahotannin wakilai, 'yan kasuwa da manoma. Taɓa kasuwa don ganin yanayinta.",
+  commodity:"Kaya",state:"Jiha",unit:"Ma'auni",all:"Duka",bag:"Buhu kg 100",mudu:"Mudu",market:"Kasuwa",price:"Farashi",range:"Ƙasa–Sama",d1:"Daga jiya",d7:"Kwana 7",conf:"Tabbaci",trend:"Kwana 30",reports:"Rahotanni",
+  cheapest:"Kasuwa mafi araha",dearest:"Kasuwa mafi tsada",avg:"Matsakaici",anchor7:"Dawanau, kwana 7",high:"Babba",medium:"Matsakaici",low:"Ƙarami",est:"Ƙiyasi",closed:"Ba kasuwa yau",stale:"Babu sabon bayani",
+  compareTitle:"Ina ya fi tsada?",compareLede:"Kaya ɗaya a duk kasuwanni, da ribar da manomi zai samu idan ya kai buhunansa kasuwa mafi kyau.",
+  ranked:"Farashi a kowace kasuwa, buhu kg 100",rankedSub:"Mafi tsada a farko. Zinariya ita ce Dawanau, babbar kasuwa.",arbTitle:"Tafiyar tana da riba?",arbSub:"Bambancin farashi a cire kuɗin mota na kowane buhu.",
+  from:"Daga kasuwa",to:"Zuwa kasuwa",cost:"Kuɗin mota, ₦ kowane buhu",bags:"Yawan buhuna",oppTitle:"Mafi kyawun tafiya yau",oppSub:"Riba mafi yawa a kowane buhu bayan kuɗin mota.",
+  trendsTitle:"Tarihin farashi da hasashen kwana 7",trendsLede:"Layin shi ne farashin kowace rana; inuwar ita ce ƙasa da saman ranar. Ɗigo mara cika ƙiyasi ne.",period:"Lokaci",
+  alertsTitle:"Sanarwar farashi",alertsLede:"Sami saƙo idan farashi ya kai abin da kake so. Ana ajiye su a wannan burauza; aika SMS zai fara idan an haɗa SMS.",
+  newAlert:"Sabuwar sanarwa",when:"Idan farashi ya",target:"Farashin da ake so, ₦ kowane buhu",phone:"Lambar waya",save:"Ajiye",yourAlerts:"Sanarwarka",
+  reportTitle:"Aiko da farashi",reportLede:"Aiko da abin da ka gani a kasuwa. Tsarin zai duba shi da sauran rahotannin yau ya sabunta farashi nan take.",
+  youAre:"Kai ne",priceSeen:"Farashin da ka gani, ₦",send:"Aika",todayReports:"Rahotannin yau na wannan kasuwa",
+  howTitle:"Yadda ake samun kowane farashi",h1:"Tattarawa",h1d:"Wakilai suna aiko da farashi sau biyu a rana; 'yan kasuwa da manoma ta manhaja, WhatsApp ko USSD.",h2:"Tacewa",h2d:"Ana mayar da kowane rahoto zuwa ₦ kowane kilo 100. Rahoton da ya yi nisa da sauran ana ware shi.",h3:"Haɗawa",h3d:"Tsakiyar farashi mai nauyi ta amana ita ce farashin; wakilai sun fi nauyi.",h4:"Tabbaci",h4d:"Tabbaci yana ƙaruwa idan masu rahoto sun yawaita kuma sun yi daidai. Gibi ana ƙiyasta shi.",
+  foot:"Farashin bayanan misali ne daga tsarin Kasuwa. Nauyin mudu kimanin ne kuma ya bambanta a kasuwanni. Ana buƙatar ɗan Hausa ya duba fassarar.",
+  tagline:"Farashin hatsi kullum · Kano, Kaduna, Katsina",asof:"Farashin",heroTitle:"San farashin yau kafin ka sayar",heroLede:"Farashin masara, dawa, waken soya, ridi, wake da sauransu kullum daga kasuwanni 18 a Kano, Kaduna da Katsina.",hsMarkets:"kasuwanni",hsGrades:"nau'in hatsi",hsUpdates:"sabuntawa sau biyu a rana",ctaPrices:"Duba farashin yau",ctaReport:"Aiko da farashi",repArtTitle:"Ka ga farashi a kasuwa?",repArtSub:"Wakilai, 'yan kasuwa da manoma duk suna taimakawa farashi ya zama gaskiya."}
+};
+let LANG="en";
+const t=k=>(T[LANG][k]!==undefined?T[LANG][k]:T.en[k]||k);
+const comLabel=c=>c.n[LANG]+(c.g[LANG]?" · "+c.g[LANG]:"");
+
+/* ---------- helpers ---------- */
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let x=Math.imul(seed^seed>>>15,1|seed);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296;};}
+const R=rng(20261105);
+const gauss=()=>{let u=0,v=0;while(!u)u=R();while(!v)v=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);};
+const naira=v=>"₦"+Math.round(v).toLocaleString("en-NG");
+const median=a=>{const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;};
+function wq(items,q){const s=[...items].sort((a,b)=>a.p-b.p);const tot=s.reduce((x,r)=>x+r.w,0);let c=0;for(const r of s){c+=r.w;if(c>=tot*q)return r.p;}return s[s.length-1].p;}
+const today=new Date();today.setHours(12,0,0,0);
+const dates=Array.from({length:N},(_,i)=>{const d=new Date(today);d.setDate(d.getDate()-(N-1-i));return d;});
+const fmtDate=d=>d.toLocaleDateString(LANG==="ha"?"en-GB":"en-GB",{day:"numeric",month:"short"});
+const trading=(m,d)=>m.daily||d.getDay()===m.day;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- the price model ---------- */
+function computeDaily(reports,prev){
+  if(!reports.length)return null;
+  /* yesterday's published price joins the centre twice, so one or two bad reports cannot move it */
+  const ps=reports.map(r=>r.p),base=prev?[...ps,prev.price,prev.price]:ps,med=median(base),mad=Math.max(median(base.map(p=>Math.abs(p-med))),.02*med);
+  reports.forEach(r=>{r.z=mad>0?.6745*(r.p-med)/mad:0;r.status=Math.abs(r.z)>3.5?"outlier":"accepted";r.w=WEIGHT[r.type];});
+  const acc=reports.filter(r=>r.status==="accepted");
+  if(!acc.length)return null;
+  const price=wq(acc,.5),low=wq(acc,.25),high=wq(acc,.75);
+  if(prev&&Math.abs(price/prev.price-1)>.2){
+    const hasAgent=acc.some(r=>r.type==="agent"||r.type==="sale");
+    if(!(hasAgent&&acc.length>=2)){acc.forEach(r=>r.status="held");return null;}
+  }
+  const n=acc.length,iqr=high-low,s=acc.some(r=>r.type==="agent"||r.type==="sale")?1:.7;
+  const conf=Math.round(100*Math.sqrt(Math.min(1,n/5))*(1-Math.min(1,iqr/(.3*price)))*s);
+  return {price,low:Math.min(low,price),high:Math.max(high,price),n,conf,est:false};
+}
+function gapFill(prev,ratio,reason,miss){
+  const spread=Math.max((prev.high-prev.low)/prev.price/2,.03)*1.15;
+  const price=prev.price*ratio;
+  return {price,low:price*(1-spread),high:price*(1+spread),n:0,conf:Math.max(5,Math.round(prev.conf*.6)),est:true,reason:miss>3?"stale":reason};
+}
+const confLevel=c=>c>=70?"high":c>=40?"medium":"low";
+
+/* ---------- generate sample history ---------- */
+const truth={},series={},todayReports={};
+COMS.forEach(c=>{let x=0;truth[c.id]=dates.map((d,i)=>{x=.85*x+gauss()*.011;return c.base*Math.exp(c.amp*Math.pow(1-i/(N-1),1.3)+x);});});
+let repSeq=100;
+function makeReports(m,trueP,keep){
+  const out=[],code=m.st.slice(0,2).toUpperCase();
+  const add=(type,sd,bias,time)=>{let p=trueP*Math.exp(gauss()*sd+bias);if(R()<.04)p*=R()<.5?.62+R()*.12:1.32+R()*.2;out.push({type,p,time,id:(type==="agent"?"AGT":type==="trader"?"TRD":"FRM")+"-"+code+"-"+(repSeq++%900+100)});};
+  if(R()<.9)add("agent",.018,0,"09:10");
+  if(R()<.85)add("agent",.018,0,"15:05");
+  const nt=Math.floor(R()*4);for(let i=0;i<nt;i++)add("trader",.035,(R()-.5)*.02,["10:20","11:45","13:30","14:10"][i]);
+  const nf=Math.floor(R()*3);for(let i=0;i<nf;i++)add("farmer",.05,0,["08:40","12:15","16:00"][i]);
+  return out;
+}
+MARKETS.forEach(m=>{series[m.id]={};todayReports[m.id]={};});
+COMS.forEach(c=>{
+  const bias={};MARKETS.forEach(m=>bias[m.id]=(R()-.5)*.03);
+  const miss={};MARKETS.forEach(m=>miss[m.id]=0);
+  for(let i=0;i<N;i++){
+    MARKETS.forEach(m=>{
+      const S=series[m.id];if(!S[c.id])S[c.id]=[];
+      const prev=S[c.id][i-1];
+      const open=trading(m,dates[i]);
+      let rec=null,reps=[];
+      if(open&&!(R()<.05&&!m.anchor)){
+        const trueP=truth[c.id][i]*(1+m.off+bias[m.id])*Math.exp(gauss()*.008);
+        reps=makeReports(m,trueP);rec=computeDaily(reps,prev);
+      }
+      if(i===N-1)todayReports[m.id][c.id]=reps;
+      if(rec){miss[m.id]=0;}
+      else if(prev){
+        if(open)miss[m.id]++;
+        const D=series.dawanau[c.id];const ratio=(m.anchor||!D[i-1])?1:D[i].price/D[i-1].price;
+        rec=gapFill(prev,ratio,open?"noreports":"closed",miss[m.id]);
+      } else {const p=truth[c.id][i]*(1+m.off);rec={price:p,low:p*.97,high:p*1.03,n:0,conf:20,est:true,reason:"noreports"};}
+      rec.date=dates[i];S[c.id].push(rec);
+    });
+  }
+});
+
+/* ---------- forecast (phase 1: damped trend) ---------- */
+function forecast(arr){
+  const pts=arr.slice(-28).filter(r=>!r.est);const use=pts.length>=6?pts:arr.slice(-28);
+  const xs=use.map(r=>(r.date-today)/864e5),ys=use.map(r=>Math.log(r.price));
+  const mx=xs.reduce((a,b)=>a+b,0)/xs.length,my=ys.reduce((a,b)=>a+b,0)/ys.length;
+  let num=0,den=0;xs.forEach((x,i)=>{num+=(x-mx)*(ys[i]-my);den+=(x-mx)**2;});
+  const slope=den?num/den:0;
+  const diffs=[];for(let i=1;i<arr.length;i++)if(i>arr.length-29)diffs.push(Math.log(arr[i].price/arr[i-1].price));
+  const sd=Math.sqrt(diffs.reduce((a,b)=>a+b*b,0)/Math.max(1,diffs.length))||.01;
+  const last=arr[arr.length-1].price;
+  return Array.from({length:7},(_,h)=>{const k=h+1,d=new Date(today);d.setDate(d.getDate()+k);const p=last*Math.exp(slope*.7*k);const b=1.64*sd*Math.sqrt(k);return {date:d,price:p,low:p*Math.exp(-b),high:p*Math.exp(b)};});
+}
+
+/* ---------- state ---------- */
+const state={view:"prices",com:"maize-w",st:"All",unit:"bag",sort:{k:"price",dir:1},cmpCom:"maize-w",trMarket:"dawanau",trCom:"maize-w",period:90,repMarket:"dawanau",repCom:"maize-w"};
+const $=id=>document.getElementById(id);
+const comById=id=>COMS.find(c=>c.id===id),mkById=id=>MARKETS.find(m=>m.id===id);
+const stColor=st=>`var(--${st.toLowerCase()})`;
+const latest=(m,c)=>series[m][c][N-1];
+const dispPrice=(p,c)=>state.unit==="mudu"?Math.round(p/100*comById(c).mudu/10)*10:p;
+function chgHtml(a,b){const v=(a/b-1)*100;const cls=Math.abs(v)<.05?"flat":v>0?"up":"down";const s=cls==="flat"?"0.0%":(v>0?"▲ ":"▼ ")+Math.abs(v).toFixed(1)+"%";return `<span class="chg ${cls}">${s}</span>`;}
+function pill(r){const lv=confLevel(r.conf);return `<span class="pill ${lv}" title="${r.conf}/100">${t(lv)} · ${r.conf}</span>`;}
+function statusTag(r){if(!r.est)return "";return `<span class="tag">${r.reason==="closed"?t("closed"):r.reason==="stale"?t("stale"):t("est")}</span>`;}
+function spark(arr){const v=arr.map(r=>r.price),mn=Math.min(...v),mx=Math.max(...v),w=96,h=26;const pts=v.map((p,i)=>[i/(v.length-1)*w,h-2-(p-mn)/(mx-mn||1)*(h-4)]);const d=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join("");const l=pts[pts.length-1];
+  return `<svg class="spark" width="${w+4}" height="${h}" viewBox="0 0 ${w+4} ${h}" aria-hidden="true"><path d="${d}L${w} ${h}L0 ${h}Z" fill="var(--indigo)" opacity=".08"/><path d="${d}" fill="none" stroke="var(--muted)" stroke-width="1.3"/><circle cx="${l[0]}" cy="${l[1]}" r="2.6" fill="var(--gold)"/></svg>`;}
+function fillSelect(el,items,val){el.innerHTML=items.map(([v,l])=>`<option value="${v}"${v===val?" selected":""}>${esc(l)}</option>`).join("");}
+
+/* ---------- views ---------- */
+function renderPrices(){
+  $("comChips").innerHTML=COMS.map(c=>`<button type="button" class="chip" data-com="${c.id}" aria-pressed="${c.id===state.com}">${comIcon(c,20)}${esc(comLabel(c))}</button>`).join("");
+  $("stateSeg").innerHTML=["All",...STATES].map(s=>`<button type="button" data-st="${s}" aria-pressed="${s===state.st}">${s==="All"?t("all"):s}</button>`).join("");
+  $("unitSeg").innerHTML=[["bag",t("bag")],["mudu",t("mudu")]].map(([v,l])=>`<button type="button" data-unit="${v}" aria-pressed="${v===state.unit}">${l}</button>`).join("");
+  const c=state.com,cc=comById(c);
+  $("comHead").innerHTML=`<div class="ic">${comIcon(cc,48)}</div><div><h3>${esc(cc.n[LANG])}${cc.g[LANG]?" · "+esc(cc.g[LANG]):""}</h3><p>${esc(cc.n[LANG==="en"?"ha":"en"])} · ${state.unit==="mudu"?`1 mudu ≈ ${cc.mudu} kg`:(LANG==="ha"?"Farashi kowane buhu na kilo 100":"Price per 100 kg bag")}</p></div>`;
+  let rows=MARKETS.filter(m=>state.st==="All"||m.st===state.st).map(m=>{const S=series[m.id][c];const r=S[N-1];return {m,r,d1:r.price/S[N-2].price-1,d7:r.price/S[N-8].price-1,hist:S.slice(-30)};});
+  const live=rows.filter(x=>!x.r.est||x.r.reason==="closed");
+  const pool=live.length?live:rows;
+  const cheap=pool.reduce((a,b)=>b.r.price<a.r.price?b:a),dear=pool.reduce((a,b)=>b.r.price>a.r.price?b:a);
+  const avg=pool.reduce((a,b)=>a+b.r.price,0)/pool.length;
+  const D=series.dawanau[c];
+  const u=state.unit==="mudu"?" / mudu":"";
+  $("tiles").innerHTML=`
+   <div class="tile"><div class="k">${t("cheapest")}</div><div class="v">${naira(dispPrice(cheap.r.price,c))}</div><div class="s">${esc(cheap.m.name)}, ${cheap.m.st}${u}</div></div>
+   <div class="tile"><div class="k">${t("dearest")}</div><div class="v">${naira(dispPrice(dear.r.price,c))}</div><div class="s">${esc(dear.m.name)}, ${dear.m.st}${u}</div></div>
+   <div class="tile"><div class="k">${t("avg")}</div><div class="v">${naira(dispPrice(avg,c))}</div><div class="s">${pool.length} ${LANG==="ha"?"kasuwanni":"markets"}${u}</div></div>
+   <div class="tile"><div class="k">${t("anchor7")}</div><div class="v">${chgHtml(D[N-1].price,D[N-8].price)}</div><div class="s">${naira(dispPrice(D[N-8].price,c))} → ${naira(dispPrice(D[N-1].price,c))}</div></div>`;
+  const k=state.sort.k,dir=state.sort.dir;
+  rows.sort((a,b)=>{const va=k==="market"?a.m.name:k==="price"?a.r.price:k==="d1"?a.d1:k==="d7"?a.d7:a.r.conf;const vb=k==="market"?b.m.name:k==="price"?b.r.price:k==="d1"?b.d1:k==="d7"?b.d7:b.r.conf;return (va>vb?1:va<vb?-1:0)*dir;});
+  const th=(key,label,num)=>`<th class="${num?"num":""}" aria-sort="${k===key?(dir>0?"ascending":"descending"):"none"}"><button type="button" data-sort="${key}">${label}${k===key?(dir>0?" ↑":" ↓"):""}</button></th>`;
+  $("board").innerHTML=`<thead><tr>${th("market",t("market"))}${th("price",t("price")+(state.unit==="mudu"?" / mudu":" / bag"),1)}<th class="num">${t("range")}</th>${th("d1",t("d1"),1)}${th("d7",t("d7"),1)}${th("conf",t("conf"))}<th>${t("trend")}</th></tr></thead><tbody>`+
+   rows.map(x=>`<tr class="click" tabindex="0" data-go="${x.m.id}"><td><span class="dot" style="background:${stColor(x.m.st)}"></span><span class="mname">${esc(x.m.name)}</span>${x.m.anchor?`<span class="anchor-tag">ANCHOR</span>`:""}<div class="muted" style="font-size:12px;margin-left:14px">${x.m.st}${statusTag(x.r)}</div></td>
+   <td class="num price">${naira(dispPrice(x.r.price,c))}</td><td class="num muted">${naira(dispPrice(x.r.low,c))}–${naira(dispPrice(x.r.high,c)).slice(1)}</td>
+   <td class="num">${chgHtml(x.r.price,x.r.price/(1+x.d1))}</td><td class="num">${chgHtml(x.r.price,x.r.price/(1+x.d7))}</td><td>${pill(x.r)}</td><td>${spark(x.hist)}</td></tr>`).join("")+`</tbody>`;
+}
+
+function renderCompare(){
+  fillSelect($("cmpCom"),COMS.map(c=>[c.id,comLabel(c)]),state.cmpCom);
+  const c=state.cmpCom;
+  $("cmpHead").innerHTML=`${comIcon(comById(c),64)}<div><h3>${esc(comLabel(comById(c)))}</h3><p class="sub" style="margin:0">${MARKETS.length} ${LANG==="ha"?"kasuwanni":"markets"}</p></div>`;
+  const rows=MARKETS.map(m=>({m,r:latest(m.id,c)})).sort((a,b)=>b.r.price-a.r.price);
+  const mx=rows[0].r.price,mn=rows[rows.length-1].r.price,floor=mn*.85;
+  $("bars").innerHTML=rows.map(x=>`<div class="bar-row"><span>${esc(x.m.name)}</span><div class="bar-track"><div class="bar" style="width:${((x.r.price-floor)/(mx-floor)*100).toFixed(1)}%;background:${stColor(x.m.st)};${x.m.anchor?"outline:2px solid var(--gold);outline-offset:1px;":""}opacity:${x.r.est?.45:.9}"></div></div><span class="v">${naira(x.r.price)}</span></div>`).join("");
+  $("stateLegend").innerHTML=STATES.map(s=>`<span><span class="dot" style="background:${stColor(s)}"></span>${s}</span>`).join("")+`<span class="muted">${LANG==="ha"?"Fatsi-fatsi = ƙiyasi":"Faded = estimated"} · ${LANG==="ha"?"Sanduna sun fara daga":"Bars start at"} ${naira(floor)}</span>`;
+  const mk=MARKETS.map(m=>[m.id,m.name+", "+m.st]);
+  if(!state.arbFrom)state.arbFrom=rows[rows.length-1].m.id;
+  if(!state.arbTo)state.arbTo="dawanau";
+  fillSelect($("arbFrom"),mk,state.arbFrom);fillSelect($("arbTo"),mk,state.arbTo);
+  renderArb();
+}
+function renderArb(){
+  const c=state.cmpCom,cost=+$("arbCost").value||0,bags=Math.max(1,+$("arbBags").value||1);
+  const a=latest(state.arbFrom,c),b=latest(state.arbTo,c),gain=b.price-a.price-cost;
+  const good=gain>0;
+  $("arbResult").innerHTML=`<div class="compare-line"><div><div class="muted" style="font-size:12px">${LANG==="ha"?"Riba kowane buhu":"Gain per bag"}</div><div class="big" style="color:var(${good?"--up":"--down"})">${good?"":"−"}${naira(Math.abs(gain))}</div></div><div><div class="muted" style="font-size:12px">${LANG==="ha"?"Jimilla":"Total for"} ${bags} ${LANG==="ha"?"buhuna":"bags"}</div><div class="big">${good?"":"−"}${naira(Math.abs(gain*bags))}</div></div></div>
+   <div class="muted" style="font-size:13px;margin-top:6px">${naira(b.price)} − ${naira(a.price)} − ${naira(cost)} ${LANG==="ha"?"kuɗin mota":"transport"}. ${good?(LANG==="ha"?"Tafiyar tana da riba.":"The trip pays."):(LANG==="ha"?"Ya fi kyau a sayar a gida.":"Selling locally is better.")}</div>`;
+  const opps=[];MARKETS.forEach(f=>MARKETS.forEach(to=>{if(f.id===to.id)return;const g=latest(to.id,c).price-latest(f.id,c).price-cost;if(g>0&&!latest(f.id,c).est)opps.push({f,to,g});}));
+  opps.sort((x,y)=>y.g-x.g);
+  $("opps").innerHTML=opps.slice(0,5).map(o=>`<li><span>${esc(o.f.name)} → ${esc(o.to.name)}</span><b style="color:var(--up)">+${naira(o.g)}</b></li>`).join("")||`<li class="muted">${LANG==="ha"?"Babu riba bayan kuɗin mota.":"No move pays after this transport cost."}</li>`;
+}
+
+function renderTrends(){
+  fillSelect($("trMarket"),MARKETS.map(m=>[m.id,m.name+", "+m.st]),state.trMarket);
+  fillSelect($("trCom"),COMS.map(c=>[c.id,comLabel(c)]),state.trCom);
+  $("periodSeg").innerHTML=[30,90,120].map(p=>`<button type="button" data-period="${p}" aria-pressed="${p===state.period}">${p}d</button>`).join("");
+  const all=series[state.trMarket][state.trCom],hist=all.slice(-state.period),fc=forecast(all);
+  const tc=comById(state.trCom),tm=mkById(state.trMarket);
+  $("trHead").innerHTML=`<div class="ic">${comIcon(tc,48)}</div><div><h3>${esc(comLabel(tc))}</h3><p>${esc(tm.name)}, ${tm.st}${tm.anchor?(LANG==="ha"?" · babbar kasuwa":" · anchor market"):""}</p></div>`;
+  const last=all[N-1],p30=all[N-31],hi=Math.max(...hist.map(r=>r.price)),lo=Math.min(...hist.map(r=>r.price));
+  $("trStats").innerHTML=`
+   <div class="tile"><div class="k">${LANG==="ha"?"Yau":"Today"}</div><div class="v">${naira(last.price)}</div><div class="s">${pill(last)}</div></div>
+   <div class="tile"><div class="k">${LANG==="ha"?"Kwana 30":"30-day change"}</div><div class="v">${chgHtml(last.price,p30.price)}</div><div class="s">${naira(p30.price)} → ${naira(last.price)}</div></div>
+   <div class="tile"><div class="k">${LANG==="ha"?"Sama / ƙasa":"Period high / low"}</div><div class="v" style="font-size:19px">${naira(hi)}</div><div class="s">${LANG==="ha"?"ƙasa":"low"} ${naira(lo)}</div></div>
+   <div class="tile"><div class="k">${LANG==="ha"?"Hasashen kwana 7":"In 7 days (forecast)"}</div><div class="v">${naira(fc[6].price)}</div><div class="s">${naira(fc[6].low)}–${naira(fc[6].high).slice(1)}</div></div>`;
+  drawChart(hist,fc);
+  const rows=all.slice(-7).reverse();
+  $("trTable").innerHTML=`<thead><tr><th>${LANG==="ha"?"Rana":"Date"}</th><th class="num">${t("price")}</th><th class="num">${t("range")}</th><th class="num">${t("reports")}</th><th>${t("conf")}</th><th>Status</th></tr></thead><tbody>`+rows.map(r=>`<tr><td>${r.date.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}</td><td class="num price">${naira(r.price)}</td><td class="num muted">${naira(r.low)}–${naira(r.high).slice(1)}</td><td class="num">${r.n}</td><td>${pill(r)}</td><td>${r.est?statusTag(r):`<span class="status ok">${LANG==="ha"?"An tabbatar":"Published"}</span>`}</td></tr>`).join("")+`</tbody>`;
+}
+function niceStep(range,n){const raw=range/n,mag=Math.pow(10,Math.floor(Math.log10(raw))),r=raw/mag;return (r<1.5?1:r<3?2:r<7?5:10)*mag;}
+function drawChart(hist,fc){
+  const W=760,H=300,L=64,Rr=16,Tp=14,B=30;
+  const all=[...hist,...fc];
+  let mn=Math.min(...all.map(r=>r.low)),mx=Math.max(...all.map(r=>r.high));
+  const step=niceStep(mx-mn,5);mn=Math.floor(mn/step)*step;mx=Math.ceil(mx/step)*step;
+  const X=i=>L+i/(all.length-1)*(W-L-Rr),Y=v=>Tp+(1-(v-mn)/(mx-mn))*(H-Tp-B);
+  const k=v=>v>=1e5?"₦"+Math.round(v/1000)+"k":"₦"+(v/1000).toFixed(v%1000?1:0)+"k";
+  let g="";
+  for(let v=mn;v<=mx+1e-6;v+=step){g+=`<line x1="${L}" x2="${W-Rr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${k(v)}</text>`;}
+  const nT=5;for(let j=0;j<=nT;j++){const i=Math.round(j/nT*(hist.length-1));g+=`<text x="${X(i)}" y="${H-8}" text-anchor="middle">${fmtDate(all[i].date)}</text>`;}
+  const band=(arr,off)=>arr.map((r,i)=>(i?"L":"M")+X(i+off).toFixed(1)+" "+Y(r.high).toFixed(1)).join("")+[...arr].reverse().map((r,i)=>"L"+X(arr.length-1-i+off).toFixed(1)+" "+Y(r.low).toFixed(1)).join("")+"Z";
+  const line=(arr,off)=>arr.map((r,i)=>(i?"L":"M")+X(i+off).toFixed(1)+" "+Y(r.price).toFixed(1)).join("");
+  const h0=hist.length-1,fcArr=[hist[h0],...fc];
+  const ests=hist.map((r,i)=>r.est?`<circle cx="${X(i)}" cy="${Y(r.price)}" r="2.6" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.2"/>`:"").join("");
+  $("trChart").innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Price history and forecast">${g}
+   <path d="${band(hist,0)}" fill="var(--indigo)" opacity=".12"/>
+   <path d="${band(fcArr,h0)}" fill="var(--gold)" opacity=".16"/>
+   <path d="${line(hist,0)}" fill="none" stroke="var(--indigo)" stroke-width="2"/>
+   <path d="${line(fcArr,h0)}" fill="none" stroke="var(--gold)" stroke-width="2" stroke-dasharray="5 4"/>
+   <line x1="${X(h0)}" x2="${X(h0)}" y1="${Tp}" y2="${H-B}" stroke="var(--muted)" stroke-dasharray="2 3"/>
+   <text x="${X(h0)-6}" y="${H-B-8}" text-anchor="end">${LANG==="ha"?"Yau":"Today"}</text><text x="${X(all.length-1)}" y="${Tp+10}" text-anchor="end" style="fill:var(--gold)">${LANG==="ha"?"Hasashe":"Forecast"}</text>
+   ${ests}<circle cx="${X(h0)}" cy="${Y(hist[h0].price)}" r="4" fill="var(--gold)" stroke="var(--surface)" stroke-width="1.5"/>
+   <line id="hov" y1="${Tp}" y2="${H-B}" stroke="var(--text)" opacity="0"/><circle id="hovDot" r="4" fill="var(--indigo)" stroke="var(--surface)" stroke-width="1.5" opacity="0"/>
+   <rect id="hit" x="${L}" y="${Tp}" width="${W-L-Rr}" height="${H-Tp-B}" fill="transparent"/></svg>`;
+  const svg=$("trChart").querySelector("svg"),hit=svg.querySelector("#hit"),hov=svg.querySelector("#hov"),dot=svg.querySelector("#hovDot"),tip=$("tip");
+  hit.addEventListener("mousemove",e=>{const pt=svg.getBoundingClientRect(),sx=(e.clientX-pt.left)/pt.width*W;const i=Math.max(0,Math.min(all.length-1,Math.round((sx-L)/(W-L-Rr)*(all.length-1))));const r=all[i];
+    hov.setAttribute("x1",X(i));hov.setAttribute("x2",X(i));hov.setAttribute("opacity",".25");dot.setAttribute("cx",X(i));dot.setAttribute("cy",Y(r.price));dot.setAttribute("opacity","1");
+    const card=$("trChart").getBoundingClientRect(),par=tip.parentElement.getBoundingClientRect();
+    tip.style.display="block";tip.style.left=(card.left-par.left+X(i)/W*card.width)+"px";tip.style.top=(card.top-par.top+Y(r.price)/H*card.height)+"px";
+    tip.textContent=`${fmtDate(r.date)} · ${naira(r.price)}${i>h0?" · "+(LANG==="ha"?"hasashe":"forecast"):r.est?" · "+t("est"):""}`;});
+  hit.addEventListener("mouseleave",()=>{tip.style.display="none";hov.setAttribute("opacity","0");dot.setAttribute("opacity","0");});
+}
+
+/* alerts */
+let alertsMem=[];
+function loadAlerts(){try{return JSON.parse(localStorage.getItem("kasuwa-alerts")||"null")||alertsMem;}catch(e){return alertsMem;}}
+function saveAlerts(a){alertsMem=a;try{localStorage.setItem("kasuwa-alerts",JSON.stringify(a));}catch(e){}}
+function renderAlerts(){
+  if(!$("alCom").options.length){fillSelect($("alCom"),COMS.map(c=>[c.id,comLabel(c)]),"maize-w");fillSelect($("alMarket"),MARKETS.map(m=>[m.id,m.name+", "+m.st]),"dawanau");$("alPrice").value=Math.round(latest("dawanau","maize-w").price/500)*500+1000;}
+  const list=loadAlerts();
+  $("alertList").innerHTML=list.length?list.map((a,i)=>{const p=latest(a.m,a.c).price,hit=a.cond==="above"?p>a.price:p<a.price;
+    return `<li><div>${comIcon(comById(a.c),28).replace("<svg ","<svg class=\"mini-ic\" ")}<b>${esc(comLabel(comById(a.c)))}</b> · ${esc(mkById(a.m).name)}<div class="muted" style="font-size:13px">${a.cond==="above"?(LANG==="ha"?"Sama da":"Above"):(LANG==="ha"?"Ƙasa da":"Below")} ${naira(a.price)} · ${esc(a.phone)} · ${LANG==="ha"?"yau":"now"} ${naira(p)}</div></div><div style="display:flex;gap:10px;align-items:center"><span class="status ${hit?"ok":"held"}">${hit?(LANG==="ha"?"Zai aika yau":"Would trigger today"):(LANG==="ha"?"Ana jira":"Waiting")}</span><button type="button" class="btn ghost" data-del="${i}" aria-label="Delete alert">✕</button></div></li>`;}).join(""):`<li class="muted">${LANG==="ha"?"Babu sanarwa tukuna.":"No alerts yet. Add one on the left."}</li>`;
+}
+
+/* report */
+function renderReport(){
+  if(!$("repMarket").options.length){fillSelect($("repMarket"),MARKETS.map(m=>[m.id,m.name+", "+m.st]),state.repMarket);fillSelect($("repCom"),COMS.map(c=>[c.id,comLabel(c)]),state.repCom);}
+  const reps=todayReports[state.repMarket][state.repCom],r=latest(state.repMarket,state.repCom);
+  $("repSummary").innerHTML=`${esc(mkById(state.repMarket).name)} · ${esc(comLabel(comById(state.repCom)))} — ${LANG==="ha"?"farashin yau":"published"} <b>${naira(r.price)}</b> ${pill(r)} ${statusTag(r)}`;
+  const label={agent:LANG==="ha"?"Wakili":"Agent",trader:LANG==="ha"?"Ɗan kasuwa":"Trader",farmer:LANG==="ha"?"Manomi":"Farmer"};
+  const st={accepted:[LANG==="ha"?"An karɓa":"Accepted","ok"],outlier:[LANG==="ha"?"An ware":"Set aside","bad"],held:[LANG==="ha"?"Ana jira":"Held","held"]};
+  $("repTable").innerHTML=reps.length?`<thead><tr><th>${LANG==="ha"?"Lokaci":"Time"}</th><th>${LANG==="ha"?"Mai rahoto":"Reporter"}</th><th class="num">₦ / 100 kg</th><th class="num">${LANG==="ha"?"Nauyi":"Weight"}</th><th>Status</th></tr></thead><tbody>`+
+   [...reps].sort((a,b)=>a.time<b.time?1:-1).map(x=>`<tr${x.mine?' style="background:var(--soft)"':""}><td>${x.time}</td><td>${label[x.type]} <span class="muted" style="font-size:12px">${x.id}</span></td><td class="num">${naira(x.p)}</td><td class="num">${WEIGHT[x.type]}</td><td><span class="status ${st[x.status][1]}">${st[x.status][0]}</span></td></tr>`).join("")+`</tbody>`
+   :`<tbody><tr><td class="muted">${trading(mkById(state.repMarket),today)?(LANG==="ha"?"Babu rahoto yau. Kai ne na farko.":"No reports yet today. Yours will be the first."):(LANG==="ha"?"Ba kasuwa yau a nan.":"This market is not trading today.")}</td></tr></tbody>`;
+}
+
+/* ---------- routing & events ---------- */
+const VIEWS=["prices","compare","trends","alerts","report"];
+function render(){
+  document.querySelectorAll("[data-section]").forEach(s=>s.hidden=s.dataset.section!==state.view);
+  document.querySelectorAll("nav.tabs a").forEach(a=>{if(a.dataset.view===state.view)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
+  ({prices:renderPrices,compare:renderCompare,trends:renderTrends,alerts:renderAlerts,report:renderReport})[state.view]();
+}
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.dataset.i));
+  document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===LANG));
+  $("tagline").textContent=t("tagline");
+  $("asof").textContent=t("asof")+" "+today.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+  $("alCond").options[0].text=LANG==="ha"?"sama da":"above";$("alCond").options[1].text=LANG==="ha"?"ƙasa da":"below";
+  const ty=$("repType").options;ty[0].text=LANG==="ha"?"Wakilin kasuwa":"Market agent";ty[1].text=LANG==="ha"?"Ɗan kasuwa":"Trader";ty[2].text=LANG==="ha"?"Manomi":"Farmer";
+  ["alCom","repCom"].forEach(id=>{const el=$(id);[...el.options].forEach(o=>o.text=comLabel(comById(o.value)));});
+  try{localStorage.setItem("kasuwa-lang",LANG);}catch(e){}
+  render();
+}
+function route(){const h=location.hash.slice(1);state.view=VIEWS.includes(h)?h:"prices";render();}
+window.addEventListener("hashchange",route);
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button,[data-go]");if(!b)return;
+  if(b.dataset.lang){LANG=b.dataset.lang;applyLang();}
+  else if(b.dataset.com){state.com=b.dataset.com;renderPrices();}
+  else if(b.dataset.st){state.st=b.dataset.st;renderPrices();}
+  else if(b.dataset.unit){state.unit=b.dataset.unit;renderPrices();}
+  else if(b.dataset.sort){const k=b.dataset.sort;state.sort=state.sort.k===k?{k,dir:-state.sort.dir}:{k,dir:k==="market"?1:-1};if(k==="price"&&state.sort.k!==k)state.sort.dir=1;renderPrices();}
+  else if(b.dataset.period){state.period=+b.dataset.period;renderTrends();}
+  else if(b.dataset.del!==undefined){const a=loadAlerts();a.splice(+b.dataset.del,1);saveAlerts(a);renderAlerts();}
+  else if(b.dataset.go){state.trMarket=b.dataset.go;state.trCom=state.com;location.hash="trends";}
+});
+document.addEventListener("keydown",e=>{const r=e.target.closest&&e.target.closest("tr[data-go]");if(r&&(e.key==="Enter"||e.key===" ")){e.preventDefault();state.trMarket=r.dataset.go;state.trCom=state.com;location.hash="trends";}});
+$("goBoard").addEventListener("click",()=>{const el=$("boardTitle");if(el)el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});});
+$("cmpCom").addEventListener("change",e=>{state.cmpCom=e.target.value;renderCompare();});
+$("arbFrom").addEventListener("change",e=>{state.arbFrom=e.target.value;renderArb();});
+$("arbTo").addEventListener("change",e=>{state.arbTo=e.target.value;renderArb();});
+$("arbCost").addEventListener("input",renderArb);$("arbBags").addEventListener("input",renderArb);
+$("trMarket").addEventListener("change",e=>{state.trMarket=e.target.value;renderTrends();});
+$("trCom").addEventListener("change",e=>{state.trCom=e.target.value;renderTrends();});
+$("alertForm").addEventListener("submit",e=>{e.preventDefault();const a=loadAlerts();a.push({c:$("alCom").value,m:$("alMarket").value,cond:$("alCond").value,price:+$("alPrice").value,phone:$("alPhone").value.trim()});saveAlerts(a);$("alPhone").value="";renderAlerts();});
+$("repMarket").addEventListener("change",e=>{state.repMarket=e.target.value;$("repResult").hidden=true;renderReport();});
+$("repCom").addEventListener("change",e=>{state.repCom=e.target.value;$("repResult").hidden=true;renderReport();});
+$("repForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const m=state.repMarket,c=state.repCom,com=comById(c),unit=$("repUnit").value,raw=+$("repPrice").value;
+  if(!raw)return;
+  const p=unit==="bag100"?raw:unit==="bag50"?raw*2:raw/com.mudu*100;
+  const S=series[m][c],before=S[N-1],prev=S[N-2];
+  const now=new Date(),time=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+  const type=$("repType").value;
+  const mine={type,p,time,id:"YOU",mine:true};
+  const reps=todayReports[m][c];reps.push(mine);
+  let rec=computeDaily(reps,prev);
+  if(!rec){const D=series.dawanau[c];rec=gapFill(prev,m==="dawanau"?1:D[N-1].price/D[N-2].price,"noreports",0);}
+  rec.date=today;S[N-1]=rec;
+  const st=mine.status,msg={accepted:LANG==="ha"?"An karɓi rahotonka.":"Your report was accepted.",outlier:LANG==="ha"?"Rahotonka ya yi nisa da sauran, an ware shi.":"Your report is far from the others, so it was set aside.",held:LANG==="ha"?"Canji ya wuce 20%; ana jiran tabbaci daga wakili.":"This moves the price more than 20%, so it waits for an agent to confirm."}[st];
+  $("repResult").hidden=false;
+  $("repResult").innerHTML=`<div class="status ${st==="accepted"?"ok":st==="outlier"?"bad":"held"}" style="font-size:14px">${msg}</div>
+   <div class="compare-line" style="margin-top:8px"><div><div class="muted" style="font-size:12px">${LANG==="ha"?"An mayar zuwa":"Converted to"}</div><b>${naira(p)} / 100 kg</b></div><div><div class="muted" style="font-size:12px">z-score</div><b>${mine.z.toFixed(2)}</b></div><div><div class="muted" style="font-size:12px">${LANG==="ha"?"Farashi":"Published price"}</div><b>${naira(before.price)} → ${naira(rec.price)}</b></div><div><div class="muted" style="font-size:12px">${t("conf")}</div><b>${before.conf} → ${rec.conf}</b></div></div>`;
+  $("repPrice").value="";renderReport();
+});
+
+try{const l=localStorage.getItem("kasuwa-lang");if(l==="ha"||l==="en")LANG=l;}catch(e){}
+applyLang();route();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "Kasuwa",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [8000, 8080, 5432],
+  "portsAttributes": {
+    "8000": { "label": "API" },
+    "8080": { "label": "Front end" },
+    "5432": { "label": "PostgreSQL", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "pip install -r api/requirements.txt && cp -n .env.example api/.env || true",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "charliermarsh.ruff", "ms-azuretools.vscode-docker"]
+    }
+  }
+}
