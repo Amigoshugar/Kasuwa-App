@@ -1,0 +1,35 @@
+# Local / Codespaces stack:  docker compose up -d --build
+#   API:       http://localhost:8000/docs
+#   Front end: http://localhost:8080
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: kasuwa
+      POSTGRES_PASSWORD: kasuwa
+      POSTGRES_DB: kasuwa
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kasuwa"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgresql+psycopg://kasuwa:kasuwa@db:5432/kasuwa
+      ADMIN_TOKEN: dev-admin-token
+      CORS_ORIGINS: "*"
+    ports: ["8000:8000"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    image: nginx:alpine
+    volumes: ["./web:/usr/share/nginx/html:ro"]
+    ports: ["8080:80"]
+
+volumes:
+  pgdata:

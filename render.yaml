@@ -1,0 +1,23 @@
+# Render Blueprint: New > Blueprint > pick this repo.
+services:
+  - type: web
+    name: kasuwa-api
+    runtime: docker
+    rootDir: api
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: false          # GitHub Actions deploys after tests pass
+    envVars:
+      - key: DATABASE_URL      # paste your Neon connection string in the Render dashboard
+        sync: false
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: "*"
+
+  - type: web
+    name: kasuwa-web
+    runtime: static
+    rootDir: web
+    staticPublishPath: .
