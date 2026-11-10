@@ -1,6 +1,18 @@
-# Local / Codespaces stack:  docker compose up -d --build
-#   API:       http://localhost:8000/docs
-#   Front end: http://localhost:8080
+# Local / Codespaces development stack
+#
+#   Start:       docker compose up -d --build
+#   Seed data:   docker compose exec api python -m app.seed
+#   Lint + test: docker compose exec api sh -c "ruff check . && pytest -q"
+#   Logs:        docker compose logs -f api
+#   Stop:        docker compose down
+#
+#   API docs:    http://localhost:8000/docs
+#   Front end:   http://localhost:8080
+#
+# The api/ folder is mounted into the container, so saved changes show up
+# immediately and the API restarts by itself. Production (Render) does not use
+# this file: it builds from api/Dockerfile.
+
 services:
   db:
     image: postgres:16
@@ -8,8 +20,10 @@ services:
       POSTGRES_USER: kasuwa
       POSTGRES_PASSWORD: kasuwa
       POSTGRES_DB: kasuwa
-    ports: ["5432:5432"]
-    volumes: [pgdata:/var/lib/postgresql/data]
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U kasuwa"]
       interval: 5s
@@ -17,19 +31,26 @@ services:
 
   api:
     build: ./api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./api:/app
     environment:
       DATABASE_URL: postgresql+psycopg://kasuwa:kasuwa@db:5432/kasuwa
       ADMIN_TOKEN: dev-admin-token
       CORS_ORIGINS: "*"
-    ports: ["8000:8000"]
+      WATCHFILES_FORCE_POLLING: "true"   # makes --reload notice saves on Windows
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
 
   web:
     image: nginx:alpine
-    volumes: ["./web:/usr/share/nginx/html:ro"]
-    ports: ["8080:80"]
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
 
 volumes:
   pgdata:
