@@ -156,6 +156,17 @@ Open `admin.html` on the same site as the app (for example `https://kasuwa-web.o
 
 The page itself is public, but every action needs the password. Use a long, random `ADMIN_TOKEN` and change it if it leaks.
 
+## Photos and logo
+
+- The logo is `web/icons/logo-mark.svg`; app icons (`icon-*.png`) are made from it.
+- Photos live in `web/images/`. Download the starter set once (free Unsplash photos, credits in `web/images/CREDITS.md`):
+
+  ```bash
+  bash web/images/get-photos.sh
+  ```
+
+- Replace any photo with your own by saving it under the same name. If a photo is missing, the app shows a drawing instead, so nothing breaks.
+
 ## How the front end finds the API
 
 `web/index.html` picks the API address automatically:

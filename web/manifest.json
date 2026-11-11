@@ -1,0 +1,15 @@
+{
+  "name": "Kasuwa Grain Prices",
+  "short_name": "Kasuwa",
+  "description": "Daily grain prices from 18 markets in Kano, Kaduna and Katsina.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f2",
+  "theme_color": "#0e6b4f",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

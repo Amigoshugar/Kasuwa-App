@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Kasuwa">
+  <defs>
+    <linearGradient id="kw-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14946a"/>
+      <stop offset="1" stop-color="#0a5640"/>
+    </linearGradient>
+    <linearGradient id="kw-grain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd978"/>
+      <stop offset="1" stop-color="#f2a51f"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#kw-bg)"/>
+  <!-- market price bars -->
+  <rect x="10" y="38" width="6" height="14" rx="3" fill="#ffffff" opacity=".5"/>
+  <rect x="48" y="30" width="6" height="22" rx="3" fill="#ffffff" opacity=".85"/>
+  <!-- ear of grain pointing up: grain + rising price -->
+  <g fill="url(#kw-grain)">
+    <path d="M32 54 V24" stroke="#f2a51f" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="32" cy="14.5" rx="3.6" ry="6.2"/>
+    <ellipse cx="27.4" cy="23" rx="3.4" ry="6" transform="rotate(-32 27.4 23)"/>
+    <ellipse cx="36.6" cy="23" rx="3.4" ry="6" transform="rotate(32 36.6 23)"/>
+    <ellipse cx="27.4" cy="32" rx="3.4" ry="6" transform="rotate(-32 27.4 32)"/>
+    <ellipse cx="36.6" cy="32" rx="3.4" ry="6" transform="rotate(32 36.6 32)"/>
+    <ellipse cx="27.4" cy="41" rx="3.4" ry="6" transform="rotate(-32 27.4 41)"/>
+    <ellipse cx="36.6" cy="41" rx="3.4" ry="6" transform="rotate(32 36.6 41)"/>
+  </g>
+</svg>
