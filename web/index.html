@@ -2,222 +2,296 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kasuwa Grain Prices</title>
+<meta name="description" content="Daily grain prices from 18 markets in Kano, Kaduna and Katsina. Maize, sorghum, soybeans, sesame, beans, millet, groundnut and rice.">
 <!-- Optional: set the API address here, e.g. https://kasuwa-api.onrender.com. Empty = auto. -->
 <meta name="kasuwa-api" content="">
+<meta name="theme-color" content="#0e6b4f">
+<link rel="icon" type="image/svg+xml" href="icons/logo-mark.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  /* Layout: indigo masthead (Kano dye-pit blue) over a scan-first price board; millet gold marks the anchor market and actions */
-  --indigo:#232f6b;
-  --gold:#c4860f;
-  --bg:#f1f2f6;
+  /* Layout: sticky glass app bar, photo hero with a live price, commodity photo rail, card-based board; bottom tab bar on phones */
+  --brand:#0e6b4f;
+  --brand-2:#0a5640;
+  --gold:#f2a51f;
+  --bg:#f4f6f2;
   --surface:#ffffff;
-  --line:#dcdfe9;
-  --text:#191c2c;
-  --muted:#5a5f77;
-  --soft:#e8eaf3;
-  --up:#1d7f49;
-  --down:#b8322a;
-  --warn:#a76a00;
-  --kano:#3b4cad;
-  --kaduna:#16807f;
-  --katsina:#b8770e;
-  --mast-text:#f4f5fb;
-  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --line:#e2e8e2;
+  --text:#14201a;
+  --muted:#5b6a62;
+  --soft:#edf3ee;
+  --up:#13834f;
+  --down:#c03a2b;
+  --warn:#b26b00;
+  --kano:#2f6fd6;
+  --kaduna:#0e9f8e;
+  --katsina:#e08a1e;
+  --indigo:var(--brand);
+  --mast-text:#ffffff;
+  --shadow:0 1px 2px rgba(16,32,24,.06),0 8px 24px rgba(16,32,24,.06);
+  --radius:18px;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Manrope","Segoe UI",system-ui,sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --indigo:#1a2350; --gold:#e3a63a; --bg:#10121c; --surface:#181b29; --line:#2b2f44; --text:#e9eaf3; --muted:#9a9fb8; --soft:#22263a;
-    --up:#4cc283; --down:#f07a6e; --warn:#e3a63a; --kano:#8191ef; --kaduna:#4cc4c2; --katsina:#e9ae4c; color-scheme:dark;
+    --brand:#2fbf8a;--brand-2:#1c9c6f;--gold:#f5b640;--bg:#0d1411;--surface:#151f1a;--line:#26332c;--text:#e8efe9;--muted:#9aaba1;--soft:#1b2721;
+    --up:#4fd18f;--down:#ff7b6b;--warn:#f5b640;--kano:#7aa7ff;--kaduna:#45d3c1;--katsina:#f5b25a;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --indigo:#1a2350; --gold:#e3a63a; --bg:#10121c; --surface:#181b29; --line:#2b2f44; --text:#e9eaf3; --muted:#9a9fb8; --soft:#22263a;
-  --up:#4cc283; --down:#f07a6e; --warn:#e3a63a; --kano:#8191ef; --kaduna:#4cc4c2; --katsina:#e9ae4c; color-scheme:dark;
+  --brand:#2fbf8a;--brand-2:#1c9c6f;--gold:#f5b640;--bg:#0d1411;--surface:#151f1a;--line:#26332c;--text:#e8efe9;--muted:#9aaba1;--soft:#1b2721;
+  --up:#4fd18f;--down:#ff7b6b;--warn:#f5b640;--kano:#7aa7ff;--kaduna:#45d3c1;--katsina:#f5b25a;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
 button,input,select{font:inherit;color:inherit}
-a{color:inherit}
+a{color:var(--brand)}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
-
-.mast{background:var(--indigo);color:var(--mast-text);border-bottom:3px solid var(--gold)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
-.mast-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0 14px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:12px}
-.brand-mark{width:38px;height:38px;flex:none}
-.brand h1{font-family:var(--display);font-weight:800;font-size:24px;margin:0;letter-spacing:-.01em;line-height:1.1}
-.brand p{margin:0;font-size:13px;opacity:.8}
-.mast-tools{display:flex;align-items:center;gap:14px;font-size:13px}
-.lang{display:inline-flex;border:1px solid rgba(255,255,255,.35);border-radius:999px;overflow:hidden}
-.lang button{background:none;border:0;padding:5px 12px;cursor:pointer;color:var(--mast-text)}
-.lang button[aria-pressed="true"]{background:var(--gold);color:#1b1404;font-weight:600}
-nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
-nav.tabs a{padding:10px 14px;text-decoration:none;font-weight:500;font-size:14px;border-radius:8px 8px 0 0;white-space:nowrap;opacity:.82}
-nav.tabs a:hover{opacity:1;background:rgba(255,255,255,.08)}
-nav.tabs a[aria-current="page"]{background:var(--bg);color:var(--text);opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+[hidden]{display:none!important}
 
-.notice{display:flex;gap:10px;align-items:flex-start;margin:18px 0 0;padding:10px 14px;border:1px dashed var(--gold);border-radius:10px;font-size:13px;color:var(--muted);background:var(--surface)}
-.notice b{color:var(--text)}
-.notice{align-items:center}
-.btn:disabled{opacity:.6;cursor:wait}
-main{padding:18px 0 48px}
+/* ---------- app bar ---------- */
+.appbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface) 86%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.appbar-row{display:flex;align-items:center;gap:16px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);flex:none}
+.brand img{width:38px;height:38px;border-radius:10px;display:block}
+.brand b{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.02em;line-height:1}
+.brand small{display:block;font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+nav.tabs{display:flex;gap:4px;margin:0 auto;background:var(--soft);border-radius:999px;padding:4px}
+nav.tabs a{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;text-decoration:none;color:var(--muted);font-weight:600;font-size:14px;white-space:nowrap;transition:background .15s,color .15s}
+nav.tabs a svg{width:18px;height:18px;flex:none}
+nav.tabs a:hover{color:var(--text)}
+nav.tabs a[aria-current="page"]{background:var(--surface);color:var(--brand);box-shadow:var(--shadow)}
+.bar-tools{display:flex;align-items:center;gap:10px;flex:none}
+.datepill{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap}
+.lang{display:inline-flex;background:var(--soft);border-radius:999px;padding:3px}
+.lang button{background:none;border:0;padding:5px 11px;cursor:pointer;border-radius:999px;font-size:13px;font-weight:700;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--brand);color:#fff}
+@media (max-width:980px){.datepill{display:none}}
+@media (max-width:560px){.brand small{display:none}}
+@media (max-width:760px){
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;margin:0;border-radius:0;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:30}
+  nav.tabs a{flex-direction:column;gap:2px;padding:6px 4px;font-size:11px;border-radius:12px;flex:1;justify-content:center;min-width:0}
+  nav.tabs a span{overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  nav.tabs a svg{width:22px;height:22px}
+  nav.tabs a[aria-current="page"]{box-shadow:none;background:var(--soft)}
+  body{padding-bottom:84px}
+  .appbar{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--surface)} /* a blurred parent would trap the fixed tab bar */
+  .appbar-row{height:58px}
+  .bar-tools{margin-left:auto}
+}
+
+/* ---------- status ---------- */
+.notice{display:flex;gap:10px;align-items:center;margin:14px 0 0;padding:8px 14px;border-radius:999px;font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--line);width:fit-content;max-width:100%}
+.notice #noticeDot{font-size:11px}
+main{padding:14px 0 40px}
 section[hidden]{display:none}
-h2{font-family:var(--display);font-weight:800;font-size:26px;margin:6px 0 4px;letter-spacing:-.01em;text-wrap:balance}
-.lede{color:var(--muted);margin:0 0 16px;max-width:65ch}
+h2{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.02em;margin:8px 0 4px;text-wrap:balance}
+.lede{color:var(--muted);margin:0 0 18px;max-width:62ch}
 
-.controls{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;margin-bottom:16px}
-.field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:500}
-select,input[type=number],input[type=tel],input[type=text]{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:150px;font-size:14px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer}
-.chip:hover{border-color:var(--muted)}
-.chip[aria-pressed="true"]{background:var(--indigo);border-color:var(--indigo);color:#fff}
-:root[data-theme="dark"] .chip[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#1b1404}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#1b1404}}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
-.seg button{border:0;background:none;padding:7px 12px;cursor:pointer;font-size:13px}
-.seg button+button{border-left:1px solid var(--line)}
-.seg button[aria-pressed="true"]{background:var(--soft);font-weight:600}
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;border-radius:28px;min-height:400px;display:grid;grid-template-columns:1.2fr .8fr;align-items:end;gap:20px;padding:40px;margin:6px 0 30px;color:#fff;
+  background:linear-gradient(100deg,rgba(6,40,29,.92) 0%,rgba(6,40,29,.72) 42%,rgba(6,40,29,.15) 100%),url("images/hero.jpg") center/cover no-repeat,linear-gradient(135deg,#0e6b4f,#0a3d2e)}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:40%;background:linear-gradient(transparent,rgba(6,40,29,.55));pointer-events:none}
+.hero>*{position:relative;z-index:1}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#ffd978;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:5px 12px;border-radius:999px;margin-bottom:14px}
+.hero h2{color:#fff;font-size:clamp(32px,4.6vw,54px);line-height:1.02;margin:0 0 14px;max-width:14ch}
+.hero p{margin:0 0 22px;color:rgba(255,255,255,.86);max-width:44ch;font-size:16px}
+.hero-stats{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:24px}
+.hero-stats b{display:block;font-family:var(--display);font-size:26px;color:#ffd978;line-height:1.1}
+.hero-stats span{font-size:12.5px;color:rgba(255,255,255,.78)}
+.hero-cta{display:flex;gap:10px;flex-wrap:wrap}
+.quote{align-self:end;justify-self:end;width:100%;max-width:300px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:20px;padding:16px 18px;color:#fff}
+.quote .q-k{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.quote .q-v{font-family:var(--display);font-size:34px;font-weight:800;line-height:1.1;margin:4px 0}
+.quote .q-s{font-size:13px;color:rgba(255,255,255,.85)}
+.quote .chg.up{color:#7ef0b3}.quote .chg.down{color:#ffb4a8}
+@media (max-width:820px){.hero{grid-template-columns:1fr;padding:26px 22px;min-height:0;border-radius:22px}.quote{justify-self:start;max-width:none}}
 
-.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.tile .k{font-size:12px;color:var(--muted);font-weight:500}
-.tile .v{font-family:var(--display);font-size:24px;font-weight:800;line-height:1.2;margin-top:2px}
-.tile .s{font-size:12px;color:var(--muted)}
-@media (max-width:760px){.tiles{grid-template-columns:repeat(2,1fr)}}
+/* ---------- buttons, fields ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:#241500;border:0;border-radius:999px;padding:11px 20px;font-weight:700;cursor:pointer;text-decoration:none;transition:transform .12s,filter .12s}
+.btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.btn:disabled{opacity:.6;cursor:wait;transform:none}
+.btn.ghost{background:var(--surface);border:1px solid var(--line);color:var(--text)}
+.btn.glass{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);color:#fff}
+.controls{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:flex-end;margin-bottom:16px}
+.field{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--muted);font-weight:700}
+select,input[type=number],input[type=tel],input[type=text]{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:150px;font-size:15px;font-weight:500;color:var(--text)}
+select:focus,input:focus{outline:2px solid color-mix(in srgb,var(--brand) 45%,transparent);outline-offset:0;border-color:var(--brand)}
+.seg{display:inline-flex;background:var(--soft);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:7px 14px;cursor:pointer;font-size:13.5px;border-radius:999px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
 
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+/* ---------- commodity photo rail ---------- */
+.rail-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:10px}
+.rail-head h3{font-family:var(--display);font-size:19px;margin:0}
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:158px;gap:12px;overflow-x:auto;padding:4px 2px 14px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+.ccard{scroll-snap-align:start;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:6px 6px 10px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:transform .15s,box-shadow .15s,border-color .15s}
+.ccard:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.ccard[aria-pressed="true"]{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand) inset,var(--shadow)}
+.ccard .ph{height:96px;border-radius:13px}
+.ccard .nm{padding:0 6px;font-weight:700;font-size:14px;line-height:1.2}
+.ccard .gr{padding:0 6px;font-size:12px;color:var(--muted);font-weight:600}
+.ccard .pr{padding:0 6px;font-family:var(--display);font-weight:800;font-size:17px}
+.ccard .pr small{font-family:var(--body);font-size:11px;color:var(--muted);font-weight:600}
+
+/* photo with drawn fallback */
+.ph{position:relative;display:block;overflow:hidden;background:linear-gradient(135deg,var(--soft),color-mix(in srgb,var(--gold) 18%,var(--soft)))}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.ph svg{position:absolute;inset:0;margin:auto;width:58%;height:58%;opacity:0}
+.ph.noimg svg{opacity:1}
+
+/* ---------- cards & tiles ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.pad{padding:20px}
+.card h3{font-family:var(--display);font-size:19px;font-weight:800;margin:0 0 4px;letter-spacing:-.01em}
+.card .sub{font-size:13.5px;color:var(--muted);margin:0 0 14px}
+.com-head{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px;margin-bottom:14px;box-shadow:var(--shadow)}
+.com-head .ph{width:120px;height:84px;border-radius:12px;flex:none}
+.com-head h3{font-family:var(--display);font-weight:800;font-size:22px;margin:0;letter-spacing:-.01em}
+.com-head p{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
+.tiles,.statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
+.tile .k{font-size:12.5px;color:var(--muted);font-weight:700}
+.tile .v{font-family:var(--display);font-size:26px;font-weight:800;line-height:1.2;margin-top:4px;letter-spacing:-.01em}
+.tile .s{font-size:12.5px;color:var(--muted)}
+@media (max-width:760px){.tiles,.statrow{grid-template-columns:repeat(2,1fr)}.tile .v{font-size:21px}}
+
+/* ---------- table / board ---------- */
 .table-wrap{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:14px}
-th{font-size:12px;font-weight:600;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:14.5px}
+th{font-size:12px;font-weight:700;color:var(--muted);text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
 th.num,td.num{text-align:right}
-th button{background:none;border:0;padding:0;cursor:pointer;font-weight:600;color:inherit}
-td{padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th button{background:none;border:0;padding:0;cursor:pointer;font-weight:700;color:inherit;text-transform:inherit;letter-spacing:inherit;font-size:inherit}
+td{padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
 tbody tr:last-child td{border-bottom:0}
-tbody tr.click{cursor:pointer}
+tbody tr.click{cursor:pointer;transition:background .12s}
 tbody tr.click:hover td{background:var(--soft)}
-.mname{font-weight:600}
-.anchor-tag{font-size:11px;color:var(--gold);font-weight:600;margin-left:6px}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
-.price{font-weight:600;font-size:15px}
+.mname{font-weight:700}
+.anchor-tag{font-size:10.5px;color:#241500;background:var(--gold);font-weight:800;margin-left:8px;padding:1px 7px;border-radius:999px;letter-spacing:.04em}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;vertical-align:1px}
+.price{font-weight:800;font-size:16px;font-family:var(--display)}
+.chg{font-weight:700}
 .chg.up{color:var(--up)} .chg.down{color:var(--down)} .chg.flat{color:var(--muted)}
-.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;border-radius:999px;padding:2px 9px;border:1px solid}
-.pill.high{color:var(--up);border-color:color-mix(in srgb,var(--up) 40%,transparent);background:color-mix(in srgb,var(--up) 10%,transparent)}
-.pill.medium{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent);background:color-mix(in srgb,var(--warn) 10%,transparent)}
-.pill.low{color:var(--down);border-color:color-mix(in srgb,var(--down) 40%,transparent);background:color-mix(in srgb,var(--down) 10%,transparent)}
-.tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px;margin-left:6px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px}
+.pill.high{color:var(--up);background:color-mix(in srgb,var(--up) 12%,transparent)}
+.pill.medium{color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)}
+.pill.low{color:var(--down);background:color-mix(in srgb,var(--down) 12%,transparent)}
+.tag{font-size:11px;color:var(--muted);background:var(--soft);border-radius:999px;padding:1px 8px;margin-left:6px;font-weight:600}
 .muted{color:var(--muted)}
 .spark{display:block}
+/* board rows become cards on phones */
+@media (max-width:640px){
+  #board thead{display:none}
+  #board,#board tbody{display:block}
+  #board tr.click{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+  #board tr.click td{display:block;padding:0;border:0;white-space:normal}
+  #board tr.click td:nth-child(1){grid-column:1}
+  #board tr.click td:nth-child(2){grid-column:2;grid-row:1;text-align:right}
+  #board tr.click td:nth-child(3){grid-column:1/-1;text-align:left;font-size:12.5px}
+  #board tr.click td:nth-child(4),#board tr.click td:nth-child(5){display:inline-block;text-align:left}
+  #board tr.click td:nth-child(4){grid-column:1}
+  #board tr.click td:nth-child(5){grid-column:2;text-align:right}
+  #board tr.click td:nth-child(6){grid-column:1}
+  #board tr.click td:nth-child(7){grid-column:2;justify-self:end}
+  #board tr:not(.click) td{display:block;white-space:normal}
+}
 
-.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+/* ---------- compare ---------- */
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;align-items:start}
 @media (max-width:900px){.grid2{grid-template-columns:1fr}}
-.pad{padding:16px}
-.card h3{font-family:var(--display);font-size:17px;font-weight:800;margin:0 0 4px}
-.card .sub{font-size:13px;color:var(--muted);margin:0 0 12px}
-.bars{display:flex;flex-direction:column;gap:6px}
-.bar-row{display:grid;grid-template-columns:150px 1fr 92px;align-items:center;gap:10px;font-size:13px}
-.bar-track{height:18px;background:var(--soft);border-radius:4px;position:relative}
-.bar{height:100%;border-radius:4px}
-.bar-row .v{text-align:right;font-weight:600}
-.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar-row{display:grid;grid-template-columns:150px 1fr 96px;align-items:center;gap:12px;font-size:13.5px;font-weight:600}
+.bar-track{height:14px;background:var(--soft);border-radius:999px;position:relative;overflow:hidden}
+.bar{height:100%;border-radius:999px}
+.bar-row .v{text-align:right;font-weight:800;font-family:var(--display)}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
 .calc{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .calc .field select,.calc .field input{min-width:0;width:100%}
-.result{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--soft);font-size:14px}
-.result .big{font-family:var(--display);font-size:26px;font-weight:800}
-.opps{list-style:none;padding:0;margin:0;font-size:13px}
-.opps li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.result{margin-top:14px;padding:14px 16px;border-radius:14px;background:var(--soft);font-size:14px}
+.result .big{font-family:var(--display);font-size:28px;font-weight:800}
+.opps{list-style:none;padding:0;margin:0;font-size:14px}
+.opps li{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .opps li:last-child{border-bottom:0}
+.compare-line{display:flex;gap:22px;flex-wrap:wrap;margin-top:6px}
+.compare-line div{min-width:140px}
+.report-art{display:flex;gap:14px;align-items:center;margin-bottom:16px}
+.report-art .ph{width:76px;height:76px;border-radius:16px;flex:none}
+.report-art>svg{width:76px;height:76px;flex:none}
 
-.chart-card{padding:16px 16px 8px;position:relative}
+/* ---------- trends chart ---------- */
+.chart-card{padding:18px 18px 8px;position:relative}
 .chart svg{width:100%;height:auto;display:block}
 .chart text{fill:var(--muted);font-size:11px;font-family:var(--body)}
-.tip{position:absolute;pointer-events:none;background:var(--text);color:var(--bg);font-size:12px;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-110%);display:none}
-.statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
-@media (max-width:760px){.statrow{grid-template-columns:repeat(2,1fr)}}
+.tip{position:absolute;pointer-events:none;background:var(--text);color:var(--bg);font-size:12.5px;font-weight:600;padding:7px 10px;border-radius:10px;white-space:nowrap;transform:translate(-50%,-115%);display:none}
 
-form.stack{display:flex;flex-direction:column;gap:12px}
-.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+/* ---------- forms ---------- */
+form.stack{display:flex;flex-direction:column;gap:14px}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 .form-grid .field select,.form-grid .field input{min-width:0;width:100%}
-@media (max-width:560px){.form-grid,.calc{grid-template-columns:1fr}.bar-row{grid-template-columns:110px 1fr 80px}}
-.btn{background:var(--gold);color:#1b1404;border:0;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer;align-self:flex-start}
-.btn:hover{filter:brightness(1.05)}
-.btn.ghost{background:none;border:1px solid var(--line);color:var(--text)}
+@media (max-width:560px){.form-grid,.calc{grid-template-columns:1fr}.bar-row{grid-template-columns:104px 1fr 84px}}
 .alerts-list{list-style:none;margin:0;padding:0}
 .alerts-list li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
 .alerts-list li:last-child{border-bottom:0}
-.status{font-size:12px;font-weight:600}
+.mini-ic{width:34px;height:34px;border-radius:10px;vertical-align:middle;margin-right:10px;display:inline-block}
+.status{font-size:12.5px;font-weight:700}
 .status.ok{color:var(--up)} .status.bad{color:var(--down)} .status.held{color:var(--warn)}
-.compare-line{display:flex;gap:20px;flex-wrap:wrap;margin-top:6px}
-.compare-line div{min-width:140px}
-.howto{margin-top:28px}
+.photo-card{position:relative;border-radius:var(--radius);overflow:hidden;min-height:180px;margin-bottom:16px;display:flex;align-items:flex-end;color:#fff;
+  background:linear-gradient(180deg,rgba(6,40,29,0) 30%,rgba(6,40,29,.85)),url("images/market.jpg") center/cover no-repeat,linear-gradient(135deg,#0e6b4f,#0a3d2e)}
+.photo-card div{padding:18px}
+.photo-card b{font-family:var(--display);font-size:20px;display:block}
+.photo-card span{font-size:13.5px;opacity:.9}
+
+/* ---------- how it works & footer ---------- */
+.howto{margin-top:34px}
 .howto ol{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0;margin:0;list-style:none;counter-reset:s}
-.howto li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:13px;color:var(--muted);counter-increment:s}
-.howto li b{display:block;color:var(--text);font-size:14px;margin-bottom:4px}
-.howto li b::before{content:counter(s) ". ";color:var(--gold)}
+.howto li{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;font-size:13.5px;color:var(--muted);counter-increment:s;box-shadow:var(--shadow)}
+.howto li b{display:flex;align-items:center;gap:10px;color:var(--text);font-size:15px;margin-bottom:6px}
+.howto li b::before{content:counter(s);display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:color-mix(in srgb,var(--brand) 14%,transparent);color:var(--brand);font-size:13px}
 @media (max-width:860px){.howto ol{grid-template-columns:repeat(2,1fr)}}
-.hero{display:grid;grid-template-columns:1fr 1.05fr;gap:24px;align-items:center;background:var(--indigo);color:var(--mast-text);border-radius:16px;padding:28px 28px 0 32px;margin:4px 0 22px;overflow:hidden}
-.hero h2{color:var(--mast-text);font-size:34px;line-height:1.1;margin:0 0 10px}
-.hero p{margin:0 0 16px;opacity:.85;max-width:46ch}
-.hero-stats{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:18px}
-.hero-stats b{display:block;font-family:var(--display);font-size:24px;color:var(--gold)}
-.hero-stats span{font-size:12px;opacity:.8}
-.hero-cta{display:flex;gap:10px;flex-wrap:wrap;padding-bottom:28px}
-.hero .btn.ghost{color:var(--mast-text);border-color:rgba(255,255,255,.4);text-decoration:none}
-.hero-art{align-self:end;line-height:0}
-.hero-art svg{width:100%;height:auto;display:block}
-@media (max-width:820px){.hero{grid-template-columns:1fr;padding:22px 20px 0}.hero h2{font-size:27px}.hero-cta{padding-bottom:8px}}
-.com-head{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 16px;margin-bottom:12px}
-.com-head .ic{width:56px;height:56px;flex:none;border-radius:12px;background:var(--soft);display:grid;place-items:center}
-.com-head h3{font-family:var(--display);font-weight:800;font-size:20px;margin:0}
-.com-head p{margin:0;font-size:13px;color:var(--muted)}
-.chip{display:inline-flex;align-items:center;gap:6px}
-.chip svg{width:20px;height:20px;flex:none}
-.mini-ic{width:28px;height:28px;vertical-align:middle;margin-right:8px}
-.report-art{display:flex;gap:14px;align-items:center;margin-bottom:14px}
-.report-art svg{width:84px;height:84px;flex:none}
-footer{color:var(--muted);font-size:12px;padding:0 0 30px}
+@media (max-width:480px){.howto ol{grid-template-columns:1fr}}
+footer{color:var(--muted);font-size:12.5px;padding:10px 0 30px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:30px;padding-top:18px}
+footer img{width:24px;height:24px;border-radius:6px}
 </style>
 </head>
 <body>
-<header class="mast">
-  <div class="wrap">
-    <div class="mast-row">
-      <div class="brand">
-        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="9" fill="none" stroke="#c4860f" stroke-width="2.5"/><path d="M20 30V12M20 16c-4-1-6-4-6-6 3 0 5 2 6 4M20 16c4-1 6-4 6-6-3 0-5 2-6 4M20 22c-4-1-6-4-6-6 3 0 5 2 6 4M20 22c4-1 6-4 6-6-3 0-5 2-6 4" fill="none" stroke="#f4f5fb" stroke-width="2" stroke-linecap="round"/></svg>
-        <div>
-          <h1>Kasuwa</h1>
-          <p id="tagline">Daily grain prices · Kano, Kaduna, Katsina</p>
-        </div>
-      </div>
-      <div class="mast-tools">
-        <span id="asof"></span>
-        <div class="lang" role="group" aria-label="Language">
-          <button type="button" data-lang="en" aria-pressed="true">English</button>
-          <button type="button" data-lang="ha" aria-pressed="false">Hausa</button>
-        </div>
+<header class="appbar">
+  <div class="wrap appbar-row">
+    <a class="brand" href="#prices" aria-label="Kasuwa home">
+      <img src="icons/logo-mark.svg" alt="" width="38" height="38">
+      <span><b>Kasuwa</b><small id="tagline">Daily grain prices · Kano, Kaduna, Katsina</small></span>
+    </a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#prices" data-view="prices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg><span data-i="prices">Prices</span></a>
+      <a href="#compare" data-view="compare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3L4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></svg><span data-i="compareShort">Compare</span></a>
+      <a href="#trends" data-view="trends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span data-i="trends">Trends</span></a>
+      <a href="#alerts" data-view="alerts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span data-i="alerts">Alerts</span></a>
+      <a href="#report" data-view="report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg><span data-i="reportShort">Report</span></a>
+    </nav>
+    <div class="bar-tools">
+      <span class="datepill" id="asof"></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="ha" aria-pressed="false">HA</button>
       </div>
     </div>
-    <nav class="tabs" aria-label="Sections">
-      <a href="#prices" data-view="prices" data-i="prices">Prices</a>
-      <a href="#compare" data-view="compare" data-i="compare">Compare markets</a>
-      <a href="#trends" data-view="trends" data-i="trends">Trends</a>
-      <a href="#alerts" data-view="alerts" data-i="alerts">Alerts</a>
-      <a href="#report" data-view="report" data-i="report">Report a price</a>
-    </nav>
   </div>
 </header>
 
 <div class="wrap">
-  <div class="notice" role="status"><span aria-hidden="true" id="noticeDot">◌</span><span id="noticeText">Connecting to the price server…</span><button type="button" class="btn ghost" id="retryLive" hidden style="margin-left:auto;padding:4px 12px;font-size:13px">Try again</button></div>
+  <div class="notice" role="status"><span aria-hidden="true" id="noticeDot">◌</span><span id="noticeText">Connecting to the price server…</span><button type="button" class="btn ghost" id="retryLive" hidden style="padding:4px 12px;font-size:13px">Try again</button></div>
 </div>
 
 <main class="wrap">
@@ -225,74 +299,27 @@ footer{color:var(--muted);font-size:12px;padding:0 0 30px}
   <section id="v-prices" data-section="prices">
     <div class="hero">
       <div>
+        <span class="eyebrow" data-i="heroEyebrow">Northern Nigeria grain markets</span>
         <h2 data-i="heroTitle">Know today's price before you sell</h2>
         <p data-i="heroLede">Daily prices for maize, sorghum, soybeans, sesame, beans and more from 18 markets in Kano, Kaduna and Katsina.</p>
         <div class="hero-stats">
           <div><b>18</b><span data-i="hsMarkets">markets</span></div>
           <div><b>12</b><span data-i="hsGrades">grain grades</span></div>
-          <div><b>12:00 · 18:00</b><span data-i="hsUpdates">updated twice daily</span></div>
+          <div><b>3</b><span data-i="hsStates">states</span></div>
         </div>
         <div class="hero-cta">
           <button type="button" class="btn" id="goBoard" data-i="ctaPrices">See today's prices</button>
-          <a class="btn ghost" href="#report" data-i="ctaReport">Report a price</a>
+          <a class="btn glass" href="#report" data-i="ctaReport">Report a price</a>
         </div>
       </div>
-      <div class="hero-art"><svg viewBox="0 0 560 270" role="img" aria-label="A grain market: sacks of grain, a mudu bowl of maize and sorghum stalks in front of a Hausa-style building">
- <circle cx="478" cy="62" r="34" fill="#e3a63a" opacity=".95"/>
- <circle cx="478" cy="62" r="46" fill="#e3a63a" opacity=".15"/>
- <g>
-  <path d="M150 74 L150 34 Q160 54 172 74 Z M430 74 L430 34 Q420 54 408 74 Z M281 74 L290 30 L299 74 Z" fill="#c9884a"/>
-  <rect x="150" y="72" width="280" height="160" rx="4" fill="#c9884a"/>
-  <rect x="150" y="72" width="280" height="160" rx="4" fill="url(#mud)" opacity=".25"/>
-  <polyline points="166,96 182,86 198,96 214,86 230,96 246,86 262,96 278,86 294,96 310,86 326,96 342,86 358,96 374,86 390,96 406,86 414,91" fill="none" stroke="#f1d3a8" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M258 232 V160 Q290 118 322 160 V232 Z" fill="#5b3418"/>
-  <path d="M250 232 V158 Q290 108 330 158 V232" fill="none" stroke="#f1d3a8" stroke-width="3"/>
-  <path d="M178 150 v-18 q12 -16 24 0 v18 Z M378 150 v-18 q12 -16 24 0 v18 Z" fill="#5b3418"/>
-  <path d="M290 122 l7 9 -7 9 -7 -9 Z M206 116 l6 8 -6 8 -6 -8 Z M374 116 l6 8 -6 8 -6 -8 Z" fill="#f1d3a8"/>
- </g>
- <defs><pattern id="mud" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#7a4a22"/><circle cx="6" cy="6" r=".8" fill="#7a4a22"/></pattern></defs>
- <rect x="0" y="228" width="560" height="42" fill="#8a5a30"/>
- <rect x="0" y="228" width="560" height="5" fill="#a26c3b"/>
- <g stroke="#6f8f3a" stroke-width="3" fill="none" stroke-linecap="round">
-  <path d="M58 232 Q52 160 66 92"/><path d="M90 232 Q96 170 84 108"/><path d="M58 190 q-20 -8 -26 -26 M60 150 q18 -10 30 -6 M90 190 q20 -6 28 -24"/>
- </g>
- <g fill="#a8452d">
-  <circle cx="66" cy="88" r="5"/><circle cx="60" cy="80" r="5"/><circle cx="72" cy="80" r="5"/><circle cx="64" cy="72" r="5"/><circle cx="74" cy="92" r="4.5"/><circle cx="56" cy="91" r="4.5"/><circle cx="68" cy="64" r="4.5"/><circle cx="58" cy="100" r="4"/><circle cx="76" cy="70" r="4"/>
- </g>
- <g fill="#efe3c6">
-  <circle cx="84" cy="104" r="4.5"/><circle cx="79" cy="97" r="4.5"/><circle cx="90" cy="97" r="4.5"/><circle cx="84" cy="90" r="4.5"/><circle cx="92" cy="108" r="4"/><circle cx="77" cy="108" r="4"/><circle cx="88" cy="84" r="4"/>
- </g>
- <g>
-  <path d="M108 236 Q100 196 112 172 Q118 162 130 160 L170 160 Q182 162 188 172 Q200 196 192 236 Z" fill="#e7d6b0" stroke="#b79b63" stroke-width="2"/>
-  <path d="M130 160 Q150 146 170 160" fill="#e7d6b0" stroke="#b79b63" stroke-width="2"/>
-  <path d="M142 152 h16" stroke="#7a5a2a" stroke-width="4" stroke-linecap="round"/>
-  <path d="M114 196 h72" stroke="#3b4cad" stroke-width="3" opacity=".7"/><path d="M114 204 h72" stroke="#3b4cad" stroke-width="3" opacity=".7"/>
-  <text x="150" y="224" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" font-weight="600" fill="#7a5a2a">100 kg</text>
-  <path d="M186 238 Q180 200 190 180 Q196 170 208 168 L246 168 Q258 170 264 180 Q274 200 268 238 Z" fill="#dcc79a" stroke="#b79b63" stroke-width="2"/>
-  <path d="M208 168 Q227 154 246 168" fill="#dcc79a" stroke="#b79b63" stroke-width="2"/>
-  <path d="M220 160 h14" stroke="#7a5a2a" stroke-width="4" stroke-linecap="round"/>
-  <text x="227" y="222" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" font-weight="600" fill="#7a5a2a">WAKE</text>
-  <path d="M146 162 Q140 132 150 116 Q156 108 166 106 L200 106 Q210 108 216 116 Q226 132 220 162 Z" fill="#efe1bf" stroke="#b79b63" stroke-width="2"/>
-  <path d="M166 106 Q183 94 200 106" fill="#efe1bf" stroke="#b79b63" stroke-width="2"/>
-  <path d="M176 99 h14" stroke="#7a5a2a" stroke-width="4" stroke-linecap="round"/>
-  <text x="183" y="146" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" font-weight="600" fill="#7a5a2a">MASARA</text>
- </g>
- <g>
-  <ellipse cx="420" cy="214" rx="62" ry="22" fill="#f2c230"/>
-  <g fill="#d49b12"><circle cx="392" cy="208" r="3"/><circle cx="404" cy="200" r="3"/><circle cx="418" cy="196" r="3"/><circle cx="432" cy="198" r="3"/><circle cx="446" cy="204" r="3"/><circle cx="412" cy="210" r="3"/><circle cx="428" cy="208" r="3"/><circle cx="442" cy="214" r="3"/><circle cx="398" cy="218" r="3"/><circle cx="420" cy="220" r="3"/></g>
-  <path d="M356 214 Q360 258 420 260 Q480 258 484 214 Z" fill="#9b4f24"/>
-  <path d="M362 230 Q420 244 478 230" fill="none" stroke="#e3a63a" stroke-width="3"/>
-  <path d="M372 244 l8 -6 8 6 8 -6 8 6 8 -6 8 6 8 -6 8 6 8 -6 8 6 8 -6" fill="none" stroke="#f1d3a8" stroke-width="2"/>
- </g>
- <g fill="#f2c230"><circle cx="500" cy="252" r="3"/><circle cx="510" cy="246" r="3"/><circle cx="518" cy="254" r="3"/><circle cx="492" cy="258" r="3"/></g>
- <g fill="#f4ecd8"><circle cx="300" cy="252" r="2.4"/><circle cx="308" cy="256" r="2.4"/><circle cx="316" cy="250" r="2.4"/></g>
-</svg></div>
+      <div class="quote" id="heroQuote" aria-live="polite"><div class="q-k">Dawanau · Maize</div><div class="q-v">—</div><div class="q-s">&nbsp;</div></div>
     </div>
+
+    <div class="rail-head"><h3 data-i="commodity">Commodity</h3><span class="muted" style="font-size:13px" data-i="swipe">Swipe for more</span></div>
+    <div class="rail" id="comChips" role="group" aria-label="Commodity"></div>
+
     <h2 data-i="pricesTitle" id="boardTitle">Today's prices across 18 markets</h2>
-    <p class="lede" data-i="pricesLede">The price a farmer can sell for, per 100 kg bag, built from agent, trader and farmer reports. Tap a market to see its trend.</p>
-    <div class="controls">
-      <div class="field"><span data-i="commodity">Commodity</span><div class="chips" id="comChips"></div></div>
-    </div>
+    <p class="lede" data-i="pricesLede">The price a farmer can sell for, per 100 kg bag. Tap a market to see its trend.</p>
     <div class="controls">
       <div class="field"><span data-i="state">State</span><div class="seg" id="stateSeg"></div></div>
       <div class="field"><span data-i="unit">Unit</span><div class="seg" id="unitSeg"></div></div>
@@ -317,7 +344,7 @@ footer{color:var(--muted);font-size:12px;padding:0 0 30px}
         <div class="bars" id="bars"></div>
         <div class="legend" id="stateLegend"></div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:18px">
         <div class="card pad">
           <h3 data-i="arbTitle">Is the trip worth it?</h3>
           <p class="sub" data-i="arbSub">Price gap minus your transport cost per bag.</p>
@@ -360,15 +387,15 @@ footer{color:var(--muted);font-size:12px;padding:0 0 30px}
     <div class="grid2">
       <div class="card pad">
         <h3 data-i="newAlert">New alert</h3>
-        <form class="stack" id="alertForm">
+        <form class="stack" id="alertForm" style="margin-top:12px">
           <div class="form-grid">
             <label class="field" for="alCom"><span data-i="commodity">Commodity</span><select id="alCom"></select></label>
             <label class="field" for="alMarket"><span data-i="market">Market</span><select id="alMarket"></select></label>
             <label class="field" for="alCond"><span data-i="when">When price is</span><select id="alCond"><option value="above">above</option><option value="below">below</option></select></label>
-            <label class="field" for="alPrice"><span data-i="target">Target, ₦ per bag</span><input id="alPrice" type="number" min="0" step="500" required></label>
+            <label class="field" for="alPrice"><span data-i="target">Target, ₦ per bag</span><input id="alPrice" type="number" min="0" step="any" required></label>
             <label class="field" for="alPhone" style="grid-column:1/-1"><span data-i="phone">Phone number</span><input id="alPhone" type="tel" placeholder="080..." required></label>
           </div>
-          <button class="btn" type="submit" data-i="save">Save alert</button>
+          <button class="btn" type="submit" data-i="save" style="align-self:flex-start">Save alert</button>
         </form>
       </div>
       <div class="card pad">
@@ -384,7 +411,6 @@ footer{color:var(--muted);font-size:12px;padding:0 0 30px}
     <p class="lede" data-i="reportLede">Send what you saw at the market. Every report is checked by the price model and the Kasuwa team before prices are published.</p>
     <div class="grid2">
       <div class="card pad">
-        <div class="report-art"><svg viewBox="0 0 84 84" aria-hidden="true"><rect x="22" y="6" width="40" height="72" rx="7" fill="var(--indigo)"/><rect x="26" y="14" width="32" height="52" rx="3" fill="var(--surface)"/><rect x="30" y="20" width="24" height="5" rx="2" fill="var(--gold)"/><rect x="30" y="30" width="18" height="3" rx="1.5" fill="var(--line)"/><rect x="30" y="37" width="22" height="3" rx="1.5" fill="var(--line)"/><rect x="30" y="44" width="14" height="3" rx="1.5" fill="var(--line)"/><text x="42" y="61" text-anchor="middle" font-size="7" font-weight="700" fill="var(--indigo)" font-family="IBM Plex Sans, sans-serif">₦</text><circle cx="42" cy="72" r="2.5" fill="var(--surface)"/><path d="M4 70 Q8 56 20 58 L20 78 L4 78 Z" fill="#e7d6b0" stroke="#b79b63" stroke-width="1.5"/><path d="M64 60 Q70 50 80 56 Q82 70 72 78 L64 78 Z" fill="#f2c230"/></svg><div><h3 data-i="repArtTitle">Saw a price at the market?</h3><p class="sub" style="margin:0" data-i="repArtSub">Agents, traders and farmers all help keep prices honest.</p></div></div>
         <form class="stack" id="repForm">
           <div class="form-grid">
             <label class="field" for="repType"><span data-i="youAre">You are</span><select id="repType"><option value="agent">Market agent</option><option value="trader">Trader</option><option value="farmer">Farmer</option></select></label>
@@ -394,47 +420,50 @@ footer{color:var(--muted);font-size:12px;padding:0 0 30px}
             <label class="field" for="repPrice"><span data-i="priceSeen">Price you saw, ₦</span><input id="repPrice" type="number" min="1" step="any" inputmode="decimal" required></label>
             <label class="field" for="repPhone"><span data-i="repPhone">Phone (optional)</span><input id="repPhone" type="tel" placeholder="080..." maxlength="20" autocomplete="tel"></label>
           </div>
-          <button class="btn" type="submit" data-i="send">Send report</button>
+          <button class="btn" type="submit" data-i="send" style="align-self:flex-start">Send report</button>
         </form>
         <div class="result" id="repResult" hidden></div>
       </div>
-      <div class="card pad">
-        <h3 data-i="todayReports">What happens to your report</h3>
-        <p class="sub" id="repSummary"></p>
-        <div class="table-wrap"><table id="repTable"></table></div>
+      <div>
+        <div class="photo-card"><div><b data-i="repArtTitle">Saw a price at the market?</b><span data-i="repArtSub">Agents, traders and farmers all help keep prices honest.</span></div></div>
+        <div class="card pad">
+          <h3 data-i="todayReports">What happens to your report</h3>
+          <p class="sub" id="repSummary"></p>
+          <div class="table-wrap"><table id="repTable"></table></div>
+        </div>
       </div>
     </div>
   </section>
 
   <div class="howto">
-    <h2 style="font-size:20px" data-i="howTitle">How each price is made</h2>
+    <h2 style="font-size:22px" data-i="howTitle">How each price is made</h2>
     <ol>
       <li><b data-i="h1">Collect</b><span data-i="h1d">Paid agents report twice a day; traders and farmers report by app, WhatsApp or USSD.</span></li>
       <li><b data-i="h2">Clean</b><span data-i="h2d">Every report is converted to ₦ per 100 kg. Reports far from the rest are set aside.</span></li>
       <li><b data-i="h3">Combine</b><span data-i="h3d">A trust-weighted median gives the price; agents count most, anonymous reports least.</span></li>
-      <li><b data-i="h4">Score</b><span data-i="h4d">Confidence rises with more reporters and closer agreement. Gaps are estimated and labelled.</span></li>
+      <li><b data-i="h4">Check and publish</b><span data-i="h4d">The Kasuwa team reviews every proposed price before it goes live.</span></li>
     </ol>
   </div>
+  <footer><img src="icons/logo-mark.svg" alt=""><span data-i="foot">Prices come from agent, trader and farmer reports, checked by the Kasuwa price model and team. Mudu weights are approximate and vary by market.</span> <a href="images/CREDITS.md" data-i="credits">Photo credits</a></footer>
 </main>
-<footer class="wrap" data-i="foot">Prices come from agent, trader and farmer reports, checked by the Kasuwa price model. Mudu weights are approximate and vary by market. Hausa labels need review by a native speaker.</footer>
 
 <script>
 (function(){
 "use strict";
 /* ---------- reference data ---------- */
 const COMS=[
- {id:"maize-white",art:{k:"maize",c:"#f3ead2",d:"#d2c19a"},n:{en:"Maize",ha:"Masara"},g:{en:"White",ha:"Fara"},base:36000,amp:.22,mudu:1.6},
- {id:"maize-yellow",art:{k:"maize",c:"#f2c230",d:"#c98d0c"},n:{en:"Maize",ha:"Masara"},g:{en:"Yellow",ha:"Rawaya"},base:38500,amp:.22,mudu:1.6},
- {id:"sorghum-white",art:{k:"sorghum",c:"#efe3c6",d:"#c9b78c"},n:{en:"Sorghum",ha:"Dawa"},g:{en:"White",ha:"Fara"},base:40000,amp:.18,mudu:1.6},
- {id:"sorghum-red",art:{k:"sorghum",c:"#a8452d",d:"#7a2e1c"},n:{en:"Sorghum",ha:"Dawa"},g:{en:"Red",ha:"Ja"},base:37000,amp:.18,mudu:1.6},
- {id:"soybeans",art:{k:"soy"},n:{en:"Soybeans",ha:"Waken soya"},g:{en:"",ha:""},base:62000,amp:.12,mudu:1.4},
- {id:"sesame-white",art:{k:"sesame",c:"#f4ecd8",d:"#c9b98f"},n:{en:"Sesame",ha:"Ridi"},g:{en:"White",ha:"Fari"},base:115000,amp:.10,mudu:1.3},
- {id:"sesame-mixed",art:{k:"sesame",c:"#d9c08c",d:"#9c7a46",mix:true},n:{en:"Sesame",ha:"Ridi"},g:{en:"Mixed",ha:"Gauraye"},base:98000,amp:.10,mudu:1.3},
- {id:"beans-white",art:{k:"beans",c:"#f6f1e6",eye:"#2b2b2b"},n:{en:"Beans",ha:"Wake"},g:{en:"White",ha:"Fari"},base:88000,amp:.15,mudu:1.7},
- {id:"beans-brown",art:{k:"beans",c:"#9a5531"},n:{en:"Beans",ha:"Wake"},g:{en:"Brown (drum)",ha:"Ja"},base:95000,amp:.15,mudu:1.7},
- {id:"millet",art:{k:"millet"},n:{en:"Millet",ha:"Gero"},g:{en:"",ha:""},base:42000,amp:.18,mudu:1.7},
- {id:"groundnut",art:{k:"gnut"},n:{en:"Groundnut",ha:"Gyada"},g:{en:"Shelled",ha:"Ɓararre"},base:72000,amp:.12,mudu:1.1},
- {id:"rice-paddy",art:{k:"rice"},n:{en:"Rice",ha:"Shinkafa"},g:{en:"Paddy",ha:"Da ɓawo"},base:47000,amp:.14,mudu:1.1}
+ {id:"maize-white",img:"images/maize-white.jpg",art:{k:"maize",c:"#f3ead2",d:"#d2c19a"},n:{en:"Maize",ha:"Masara"},g:{en:"White",ha:"Fara"},base:36000,amp:.22,mudu:1.6},
+ {id:"maize-yellow",img:"images/maize-yellow.jpg",art:{k:"maize",c:"#f2c230",d:"#c98d0c"},n:{en:"Maize",ha:"Masara"},g:{en:"Yellow",ha:"Rawaya"},base:38500,amp:.22,mudu:1.6},
+ {id:"sorghum-white",img:"images/sorghum-white.jpg",art:{k:"sorghum",c:"#efe3c6",d:"#c9b78c"},n:{en:"Sorghum",ha:"Dawa"},g:{en:"White",ha:"Fara"},base:40000,amp:.18,mudu:1.6},
+ {id:"sorghum-red",img:"images/sorghum-red.jpg",art:{k:"sorghum",c:"#a8452d",d:"#7a2e1c"},n:{en:"Sorghum",ha:"Dawa"},g:{en:"Red",ha:"Ja"},base:37000,amp:.18,mudu:1.6},
+ {id:"soybeans",img:"images/soybeans.jpg",art:{k:"soy"},n:{en:"Soybeans",ha:"Waken soya"},g:{en:"",ha:""},base:62000,amp:.12,mudu:1.4},
+ {id:"sesame-white",img:"images/sesame.jpg",art:{k:"sesame",c:"#f4ecd8",d:"#c9b98f"},n:{en:"Sesame",ha:"Ridi"},g:{en:"White",ha:"Fari"},base:115000,amp:.10,mudu:1.3},
+ {id:"sesame-mixed",img:"images/sesame.jpg",art:{k:"sesame",c:"#d9c08c",d:"#9c7a46",mix:true},n:{en:"Sesame",ha:"Ridi"},g:{en:"Mixed",ha:"Gauraye"},base:98000,amp:.10,mudu:1.3},
+ {id:"beans-white",img:"images/beans.jpg",art:{k:"beans",c:"#f6f1e6",eye:"#2b2b2b"},n:{en:"Beans",ha:"Wake"},g:{en:"White",ha:"Fari"},base:88000,amp:.15,mudu:1.7},
+ {id:"beans-brown",img:"images/beans.jpg",art:{k:"beans",c:"#9a5531"},n:{en:"Beans",ha:"Wake"},g:{en:"Brown (drum)",ha:"Ja"},base:95000,amp:.15,mudu:1.7},
+ {id:"millet",img:"images/millet.jpg",art:{k:"millet"},n:{en:"Millet",ha:"Gero"},g:{en:"",ha:""},base:42000,amp:.18,mudu:1.7},
+ {id:"groundnut",img:"images/groundnut.jpg",art:{k:"gnut"},n:{en:"Groundnut",ha:"Gyada"},g:{en:"Shelled",ha:"Ɓararre"},base:72000,amp:.12,mudu:1.1},
+ {id:"rice-paddy",img:"images/rice-paddy.jpg",art:{k:"rice"},n:{en:"Rice",ha:"Shinkafa"},g:{en:"Paddy",ha:"Da ɓawo"},base:47000,amp:.14,mudu:1.1}
 ];
 const MARKETS=[
  {id:"dawanau",name:"Dawanau",st:"Kano",off:0,daily:true,anchor:true},
@@ -471,6 +500,9 @@ const ICON={
  gnut:()=>`<path d="M14 10 C6 12 6 24 14 26 C10 32 14 42 24 40 C32 38 34 28 28 24 C34 18 30 6 20 8 C18 8 16 9 14 10Z" fill="#c9a072" stroke="#9c7448" stroke-width="1.4"/><path d="M14 16 h10 M13 21 h14 M16 31 h12 M18 35 h8" stroke="#9c7448" stroke-width="1"/><ellipse cx="36" cy="36" rx="5" ry="6.5" fill="#b0603a" transform="rotate(25 36 36)"/><ellipse cx="38" cy="18" rx="4.5" ry="6" fill="#b0603a" transform="rotate(-20 38 18)"/>`,
  rice:()=>`<path d="M10 46 C16 30 26 14 40 8" stroke="#8aa04a" stroke-width="2.4" fill="none"/>${[[18,32,40],[22,25,35],[27,19,30],[32,14,25],[37,10,20],[14,38,45],[24,31,-30],[29,24,-35],[34,18,-40]].map(([x,y,r])=>`<ellipse cx="${x}" cy="${y}" rx="2.6" ry="5" fill="#d9b45a" stroke="#a9852f" stroke-width=".7" transform="rotate(${r} ${x} ${y})"/>`).join("")}`
 };
+/* Photo with the drawn illustration underneath: if the photo is missing, the drawing shows. */
+function comPhoto(c,cls){return `<span class="ph ${cls||""}"><img src="${c.img}" alt="" loading="lazy" decoding="async">${comIcon(c,64)}</span>`;}
+document.addEventListener("error",e=>{const im=e.target;if(im&&im.tagName==="IMG"&&im.parentNode&&im.parentNode.classList&&im.parentNode.classList.contains("ph")){im.parentNode.classList.add("noimg");im.remove();}},true);
 function comIcon(c,size){
   const a=c.art,body=a.k==="maize"?ICON.maize(a.c,a.d):a.k==="sorghum"?ICON.sorghum(a.c,a.d):a.k==="sesame"?ICON.sesame(a.c,a.d,a.mix):a.k==="beans"?ICON.beans(a.c,a.eye):ICON[a.k]();
   return `<svg viewBox="0 0 48 48" width="${size}" height="${size}" aria-hidden="true">${body}</svg>`;
@@ -480,7 +512,7 @@ function comIcon(c,size){
 const T={
  en:{prices:"Prices",compare:"Compare markets",trends:"Trends",alerts:"Alerts",report:"Report a price",
   sample:"Sample data. Prices are generated by the price model for illustration until field agents start reporting.",
-  pricesTitle:"Today's prices across 18 markets",pricesLede:"The price a farmer can sell for, per 100 kg bag, built from agent, trader and farmer reports. Tap a market to see its trend.",
+  pricesTitle:"Today's prices across 18 markets",pricesLede:"The price a farmer can sell for, per 100 kg bag. Tap a market to see its trend.",
   commodity:"Commodity",state:"State",unit:"Unit",all:"All",bag:"100 kg bag",mudu:"Mudu",market:"Market",price:"Price",range:"Low–high",d1:"vs yesterday",d7:"7 days",conf:"Confidence",trend:"30 days",reports:"Reports",
   cheapest:"Cheapest market",dearest:"Highest market",avg:"Average",anchor7:"Dawanau, 7 days",high:"High",medium:"Medium",low:"Low",est:"Estimated",closed:"Closed today",stale:"No recent data",
   compareTitle:"Where does it sell for more?",compareLede:"One commodity across every market, and what a farmer keeps after moving bags to a better market.",
@@ -491,9 +523,9 @@ const T={
   newAlert:"New alert",when:"When price is",target:"Target, ₦ per bag",phone:"Phone number",save:"Save alert",yourAlerts:"Your alerts",
   reportTitle:"Report a price",reportLede:"Send what you saw at the market. Every report is checked by the price model and the Kasuwa team before prices are published.",
   youAre:"You are",priceSeen:"Price you saw, ₦",send:"Send report",todayReports:"What happens to your report",
-  howTitle:"How each price is made",h1:"Collect",h1d:"Paid agents report twice a day; traders and farmers report by app, WhatsApp or USSD.",h2:"Clean",h2d:"Every report is converted to ₦ per 100 kg. Reports far from the rest are set aside.",h3:"Combine",h3d:"A trust-weighted median gives the price; agents count most, anonymous reports least.",h4:"Score",h4d:"Confidence rises with more reporters and closer agreement. Gaps are estimated and labelled.",
+  howTitle:"How each price is made",h1:"Collect",h1d:"Paid agents report twice a day; traders and farmers report by app, WhatsApp or USSD.",h2:"Clean",h2d:"Every report is converted to ₦ per 100 kg. Reports far from the rest are set aside.",h3:"Combine",h3d:"A trust-weighted median gives the price; agents count most, anonymous reports least.",h4:"Check and publish",h4d:"The Kasuwa team reviews every proposed price before it goes live.",
   foot:"Prices come from agent, trader and farmer reports, checked by the Kasuwa price model. Mudu weights are approximate and vary by market. Hausa labels need review by a native speaker.",
-  tagline:"Daily grain prices · Kano, Kaduna, Katsina",asof:"Prices for",heroTitle:"Know today's price before you sell",heroLede:"Daily prices for maize, sorghum, soybeans, sesame, beans and more from 18 markets in Kano, Kaduna and Katsina.",hsMarkets:"markets",hsGrades:"grain grades",hsUpdates:"updated twice daily",ctaPrices:"See today's prices",ctaReport:"Report a price",repPhone:"Phone (optional)",repArtTitle:"Saw a price at the market?",repArtSub:"Agents, traders and farmers all help keep prices honest."},
+  tagline:"Daily grain prices · Kano, Kaduna, Katsina",asof:"Prices for",heroTitle:"Know today's price before you sell",heroLede:"Daily prices for maize, sorghum, soybeans, sesame, beans and more from 18 markets in Kano, Kaduna and Katsina.",hsMarkets:"markets",hsGrades:"grain grades",hsUpdates:"updated twice daily",ctaPrices:"See today's prices",ctaReport:"Report a price",compareShort:"Compare",reportShort:"Report",heroEyebrow:"Northern Nigeria grain markets",hsStates:"states",swipe:"Swipe for more",credits:"Photo credits",avgNow:"avg today",noPrice:"No price yet",heroQuoteNone:"Prices appear after the first reports are checked.",repPhone:"Phone (optional)",repArtTitle:"Saw a price at the market?",repArtSub:"Agents, traders and farmers all help keep prices honest."},
  ha:{prices:"Farashi",compare:"Kwatanta kasuwanni",trends:"Yanayin farashi",alerts:"Sanarwa",report:"Aiko da farashi",
   sample:"Bayanan misali. Farashin nan na gwaji ne har sai wakilan kasuwa sun fara aiko da farashi.",
   pricesTitle:"Farashin yau a kasuwanni 18",pricesLede:"Farashin da manomi zai iya sayarwa, kowane buhu na kilo 100, daga rahotannin wakilai, 'yan kasuwa da manoma. Taɓa kasuwa don ganin yanayinta.",
@@ -507,9 +539,9 @@ const T={
   newAlert:"Sabuwar sanarwa",when:"Idan farashi ya",target:"Farashin da ake so, ₦ kowane buhu",phone:"Lambar waya",save:"Ajiye",yourAlerts:"Sanarwarka",
   reportTitle:"Aiko da farashi",reportLede:"Aiko da abin da ka gani a kasuwa. Tsarin farashi da ƙungiyar Kasuwa suna duba kowane rahoto kafin a wallafa farashi.",
   youAre:"Kai ne",priceSeen:"Farashin da ka gani, ₦",send:"Aika",todayReports:"Me ke faruwa da rahotonka",
-  howTitle:"Yadda ake samun kowane farashi",h1:"Tattarawa",h1d:"Wakilai suna aiko da farashi sau biyu a rana; 'yan kasuwa da manoma ta manhaja, WhatsApp ko USSD.",h2:"Tacewa",h2d:"Ana mayar da kowane rahoto zuwa ₦ kowane kilo 100. Rahoton da ya yi nisa da sauran ana ware shi.",h3:"Haɗawa",h3d:"Tsakiyar farashi mai nauyi ta amana ita ce farashin; wakilai sun fi nauyi.",h4:"Tabbaci",h4d:"Tabbaci yana ƙaruwa idan masu rahoto sun yawaita kuma sun yi daidai. Gibi ana ƙiyasta shi.",
+  howTitle:"Yadda ake samun kowane farashi",h1:"Tattarawa",h1d:"Wakilai suna aiko da farashi sau biyu a rana; 'yan kasuwa da manoma ta manhaja, WhatsApp ko USSD.",h2:"Tacewa",h2d:"Ana mayar da kowane rahoto zuwa ₦ kowane kilo 100. Rahoton da ya yi nisa da sauran ana ware shi.",h3:"Haɗawa",h3d:"Tsakiyar farashi mai nauyi ta amana ita ce farashin; wakilai sun fi nauyi.",h4:"Dubawa da wallafawa",h4d:"Ƙungiyar Kasuwa tana duba kowane farashi kafin a wallafa shi.",
   foot:"Farashi ya fito daga rahotannin wakilai, 'yan kasuwa da manoma, tsarin Kasuwa ya duba su. Nauyin mudu kimanin ne kuma ya bambanta a kasuwanni. Ana buƙatar ɗan Hausa ya duba fassarar.",
-  tagline:"Farashin hatsi kullum · Kano, Kaduna, Katsina",asof:"Farashin",heroTitle:"San farashin yau kafin ka sayar",heroLede:"Farashin masara, dawa, waken soya, ridi, wake da sauransu kullum daga kasuwanni 18 a Kano, Kaduna da Katsina.",hsMarkets:"kasuwanni",hsGrades:"nau'in hatsi",hsUpdates:"sabuntawa sau biyu a rana",ctaPrices:"Duba farashin yau",ctaReport:"Aiko da farashi",repPhone:"Lambar waya (ba dole ba)",repArtTitle:"Ka ga farashi a kasuwa?",repArtSub:"Wakilai, 'yan kasuwa da manoma duk suna taimakawa farashi ya zama gaskiya."}
+  tagline:"Farashin hatsi kullum · Kano, Kaduna, Katsina",asof:"Farashin",heroTitle:"San farashin yau kafin ka sayar",heroLede:"Farashin masara, dawa, waken soya, ridi, wake da sauransu kullum daga kasuwanni 18 a Kano, Kaduna da Katsina.",hsMarkets:"kasuwanni",hsGrades:"nau'in hatsi",hsUpdates:"sabuntawa sau biyu a rana",ctaPrices:"Duba farashin yau",ctaReport:"Aiko da farashi",compareShort:"Kwatanta",reportShort:"Aiko",heroEyebrow:"Kasuwannin hatsi na Arewa",hsStates:"jihohi",swipe:"Ja don ganin ƙari",credits:"Masu hotuna",avgNow:"matsakaici yau",noPrice:"Babu farashi tukuna",heroQuoteNone:"Farashi zai bayyana bayan an duba rahotannin farko.",repPhone:"Lambar waya (ba dole ba)",repArtTitle:"Ka ga farashi a kasuwa?",repArtSub:"Wakilai, 'yan kasuwa da manoma duk suna taimakawa farashi ya zama gaskiya."}
 };
 let LANG="en";
 const t=k=>(T[LANG][k]!==undefined?T[LANG][k]:T.en[k]||k);
@@ -671,12 +703,22 @@ function emptyMsg(c){const name=esc(comLabel(comById(c)));return LANG==="ha"
   :`No prices for ${name} yet. Prices appear after the first reports come in. <a href="#report">Report a price</a>.`;}
 
 /* ---------- views ---------- */
+function renderQuote(){
+  const el=$("heroQuote");if(!el)return;
+  const pick=[state.com,"maize-white",...COMS.map(c=>c.id)].find(c=>latest("dawanau",c));
+  if(!pick){el.innerHTML=`<div class="q-k">Dawanau · Kano</div><div class="q-v">—</div><div class="q-s">${t("heroQuoteNone")}</div>`;return;}
+  const r=latest("dawanau",pick),p=back("dawanau",pick,1),c=comById(pick);
+  el.innerHTML=`<div class="q-k">Dawanau · ${esc(comLabel(c))}</div><div class="q-v">${naira(r.price)}</div><div class="q-s">${LANG==="ha"?"kowane buhu kg 100":"per 100 kg bag"} · ${chgHtml(r.price,p.price)} ${LANG==="ha"?"daga jiya":"vs yesterday"}</div>`;
+}
 function renderPrices(){
-  $("comChips").innerHTML=COMS.map(c=>`<button type="button" class="chip" data-com="${c.id}" aria-pressed="${c.id===state.com}">${comIcon(c,20)}${esc(comLabel(c))}</button>`).join("");
+  $("comChips").innerHTML=COMS.map(c=>{
+    const ps=MARKETS.map(m=>latest(m.id,c.id)).filter(Boolean),avg=ps.length?ps.reduce((a,r)=>a+r.price,0)/ps.length:null;
+    return `<button type="button" class="ccard" data-com="${c.id}" aria-pressed="${c.id===state.com}">${comPhoto(c)}<span class="nm">${esc(c.n[LANG])}</span><span class="gr">${esc(c.g[LANG]||"\u00a0")}</span><span class="pr">${avg?naira(dispPrice(avg,c.id))+` <small>${t("avgNow")}</small>`:`<small>${t("noPrice")}</small>`}</span></button>`;}).join("");
+  renderQuote();
   $("stateSeg").innerHTML=["All",...STATES].map(s=>`<button type="button" data-st="${s}" aria-pressed="${s===state.st}">${s==="All"?t("all"):s}</button>`).join("");
   $("unitSeg").innerHTML=[["bag",t("bag")],["mudu",t("mudu")]].map(([v,l])=>`<button type="button" data-unit="${v}" aria-pressed="${v===state.unit}">${l}</button>`).join("");
   const c=state.com,cc=comById(c);
-  $("comHead").innerHTML=`<div class="ic">${comIcon(cc,48)}</div><div><h3>${esc(cc.n[LANG])}${cc.g[LANG]?" · "+esc(cc.g[LANG]):""}</h3><p>${esc(cc.n[LANG==="en"?"ha":"en"])} · ${state.unit==="mudu"?`1 mudu ≈ ${cc.mudu} kg`:(LANG==="ha"?"Farashi kowane buhu na kilo 100":"Price per 100 kg bag")}</p></div>`;
+  $("comHead").innerHTML=`${comPhoto(cc)}<div><h3>${esc(cc.n[LANG])}${cc.g[LANG]?" · "+esc(cc.g[LANG]):""}</h3><p>${esc(cc.n[LANG==="en"?"ha":"en"])} · ${state.unit==="mudu"?`1 mudu ≈ ${cc.mudu} kg`:(LANG==="ha"?"Farashi kowane buhu na kilo 100":"Price per 100 kg bag")}</p></div>`;
   let rows=MARKETS.filter(m=>(state.st==="All"||m.st===state.st)&&latest(m.id,c)).map(m=>{const r=latest(m.id,c);return {m,r,d1:r.price/back(m.id,c,1).price-1,d7:r.price/back(m.id,c,7).price-1,hist:hist(m.id,c).slice(-30)};});
   if(!rows.length){
     $("tiles").innerHTML="";
@@ -709,7 +751,7 @@ function renderCompare(){
   fillSelect($("cmpCom"),COMS.map(c=>[c.id,comLabel(c)]),state.cmpCom);
   const c=state.cmpCom;
   const rows=MARKETS.filter(m=>latest(m.id,c)).map(m=>({m,r:latest(m.id,c)})).sort((a,b)=>b.r.price-a.r.price);
-  $("cmpHead").innerHTML=`${comIcon(comById(c),64)}<div><h3>${esc(comLabel(comById(c)))}</h3><p class="sub" style="margin:0">${rows.length} / ${MARKETS.length} ${LANG==="ha"?"kasuwanni da farashi":"markets with a price"}</p></div>`;
+  $("cmpHead").innerHTML=`${comPhoto(comById(c))}<div><h3>${esc(comLabel(comById(c)))}</h3><p class="sub" style="margin:0">${rows.length} / ${MARKETS.length} ${LANG==="ha"?"kasuwanni da farashi":"markets with a price"}</p></div>`;
   const mk=MARKETS.map(m=>[m.id,m.name+", "+m.st]);
   if(!state.arbTo)state.arbTo="dawanau";
   if(!state.arbFrom)state.arbFrom=rows.length?rows[rows.length-1].m.id:"giwa";
@@ -740,7 +782,7 @@ function renderTrends(){
   fillSelect($("trCom"),COMS.map(c=>[c.id,comLabel(c)]),state.trCom);
   $("periodSeg").innerHTML=[30,90,120].map(p=>`<button type="button" data-period="${p}" aria-pressed="${p===state.period}">${p}d</button>`).join("");
   const tc=comById(state.trCom),tm=mkById(state.trMarket);
-  $("trHead").innerHTML=`<div class="ic">${comIcon(tc,48)}</div><div><h3>${esc(comLabel(tc))}</h3><p>${esc(tm.name)}, ${tm.st}${tm.anchor?(LANG==="ha"?" · babbar kasuwa":" · anchor market"):""}</p></div>`;
+  $("trHead").innerHTML=`${comPhoto(tc)}<div><h3>${esc(comLabel(tc))}</h3><p>${esc(tm.name)}, ${tm.st}${tm.anchor?(LANG==="ha"?" · babbar kasuwa":" · anchor market"):""}</p></div>`;
   const all=hist(state.trMarket,state.trCom);
   if(!all.length){
     $("trStats").innerHTML="";$("trTable").innerHTML="";
@@ -802,7 +844,7 @@ function renderAlerts(){
   if(!$("alCom").options.length){fillSelect($("alCom"),COMS.map(c=>[c.id,comLabel(c)]),"maize-white");fillSelect($("alMarket"),MARKETS.map(m=>[m.id,m.name+", "+m.st]),"dawanau");const d=latest("dawanau","maize-white");if(d)$("alPrice").value=Math.round(d.price/500)*500+1000;}
   const list=loadAlerts().filter(a=>comById(a.c)&&mkById(a.m));
   $("alertList").innerHTML=list.length?list.map((a,i)=>{const r=latest(a.m,a.c),p=r?r.price:null,hit=p!=null&&(a.cond==="above"?p>a.price:p<a.price);
-    return `<li><div>${comIcon(comById(a.c),28).replace("<svg ","<svg class=\"mini-ic\" ")}<b>${esc(comLabel(comById(a.c)))}</b> · ${esc(mkById(a.m).name)}<div class="muted" style="font-size:13px">${a.cond==="above"?(LANG==="ha"?"Sama da":"Above"):(LANG==="ha"?"Ƙasa da":"Below")} ${naira(a.price)} · ${esc(a.phone)} · ${LANG==="ha"?"yau":"now"} ${p!=null?naira(p):"—"}</div></div><div style="display:flex;gap:10px;align-items:center"><span class="status ${hit?"ok":"held"}">${hit?(LANG==="ha"?"Zai aika yau":"Would trigger today"):(LANG==="ha"?"Ana jira":"Waiting")}</span><button type="button" class="btn ghost" data-del="${i}" aria-label="Delete alert">✕</button></div></li>`;}).join(""):`<li class="muted">${LANG==="ha"?"Babu sanarwa tukuna.":"No alerts yet. Add one on the left."}</li>`;
+    return `<li><div>${comPhoto(comById(a.c),"mini-ic")}<b>${esc(comLabel(comById(a.c)))}</b> · ${esc(mkById(a.m).name)}<div class="muted" style="font-size:13px">${a.cond==="above"?(LANG==="ha"?"Sama da":"Above"):(LANG==="ha"?"Ƙasa da":"Below")} ${naira(a.price)} · ${esc(a.phone)} · ${LANG==="ha"?"yau":"now"} ${p!=null?naira(p):"—"}</div></div><div style="display:flex;gap:10px;align-items:center"><span class="status ${hit?"ok":"held"}">${hit?(LANG==="ha"?"Zai aika yau":"Would trigger today"):(LANG==="ha"?"Ana jira":"Waiting")}</span><button type="button" class="btn ghost" data-del="${i}" aria-label="Delete alert">✕</button></div></li>`;}).join(""):`<li class="muted">${LANG==="ha"?"Babu sanarwa tukuna.":"No alerts yet. Add one on the left."}</li>`;
 }
 
 /* report */
