@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kasuwa Grain Prices</title>
 <meta name="description" content="Daily grain prices from 18 markets in Kano, Kaduna and Katsina. Maize, sorghum, soybeans, sesame, beans, millet, groundnut and rice.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kasuwa — Today's grain prices, checked and fair">
+<meta property="og:description" content="Daily prices for maize, sorghum, sesame and more across 18 markets in Kano, Kaduna and Katsina.">
+<meta property="og:image" content="https://kasuwa-web.onrender.com/images/img-02-og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <!-- Optional: set the API address here, e.g. https://kasuwa-api.onrender.com. Empty = auto. -->
 <meta name="kasuwa-api" content="">
 <meta name="theme-color" content="#0e6b4f">
@@ -103,7 +110,7 @@ h2{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.02
 
 /* ---------- hero ---------- */
 .hero{position:relative;overflow:hidden;border-radius:28px;min-height:400px;display:grid;grid-template-columns:1.2fr .8fr;align-items:end;gap:20px;padding:40px;margin:6px 0 30px;color:#fff;
-  background:linear-gradient(100deg,rgba(6,40,29,.92) 0%,rgba(6,40,29,.72) 42%,rgba(6,40,29,.15) 100%),url("images/hero.jpg") center/cover no-repeat,linear-gradient(135deg,#0e6b4f,#0a3d2e)}
+  background:linear-gradient(100deg,rgba(6,40,29,.92) 0%,rgba(6,40,29,.72) 42%,rgba(6,40,29,.15) 100%),url("images/img-01-hero.webp") center/cover no-repeat,linear-gradient(135deg,#0e6b4f,#0a3d2e)}
 .hero::after{content:"";position:absolute;inset:auto 0 0 0;height:40%;background:linear-gradient(transparent,rgba(6,40,29,.55));pointer-events:none}
 .hero>*{position:relative;z-index:1}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#ffd978;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:5px 12px;border-radius:999px;margin-bottom:14px}
@@ -249,7 +256,7 @@ form.stack{display:flex;flex-direction:column;gap:14px}
 .status{font-size:12.5px;font-weight:700}
 .status.ok{color:var(--up)} .status.bad{color:var(--down)} .status.held{color:var(--warn)}
 .photo-card{position:relative;border-radius:var(--radius);overflow:hidden;min-height:180px;margin-bottom:16px;display:flex;align-items:flex-end;color:#fff;
-  background:linear-gradient(180deg,rgba(6,40,29,0) 30%,rgba(6,40,29,.85)),url("images/market.jpg") center/cover no-repeat,linear-gradient(135deg,#0e6b4f,#0a3d2e)}
+  background:linear-gradient(180deg,rgba(6,40,29,0) 30%,rgba(6,40,29,.85)),url("images/img-11-step-report.webp") center/cover no-repeat,linear-gradient(135deg,#0e6b4f,#0a3d2e)}
 .photo-card div{padding:18px}
 .photo-card b{font-family:var(--display);font-size:20px;display:block}
 .photo-card span{font-size:13.5px;opacity:.9}
@@ -452,17 +459,17 @@ footer img{width:24px;height:24px;border-radius:6px}
 "use strict";
 /* ---------- reference data ---------- */
 const COMS=[
- {id:"maize-white",img:"images/maize-white.jpg",art:{k:"maize",c:"#f3ead2",d:"#d2c19a"},n:{en:"Maize",ha:"Masara"},g:{en:"White",ha:"Fara"},base:36000,amp:.22,mudu:1.6},
- {id:"maize-yellow",img:"images/maize-yellow.jpg",art:{k:"maize",c:"#f2c230",d:"#c98d0c"},n:{en:"Maize",ha:"Masara"},g:{en:"Yellow",ha:"Rawaya"},base:38500,amp:.22,mudu:1.6},
+ {id:"maize-white",img:"images/img-03-maize-white.webp",art:{k:"maize",c:"#f3ead2",d:"#d2c19a"},n:{en:"Maize",ha:"Masara"},g:{en:"White",ha:"Fara"},base:36000,amp:.22,mudu:1.6},
+ {id:"maize-yellow",img:"images/img-04-maize-yellow.webp",art:{k:"maize",c:"#f2c230",d:"#c98d0c"},n:{en:"Maize",ha:"Masara"},g:{en:"Yellow",ha:"Rawaya"},base:38500,amp:.22,mudu:1.6},
  {id:"sorghum-white",img:"images/sorghum-white.jpg",art:{k:"sorghum",c:"#efe3c6",d:"#c9b78c"},n:{en:"Sorghum",ha:"Dawa"},g:{en:"White",ha:"Fara"},base:40000,amp:.18,mudu:1.6},
- {id:"sorghum-red",img:"images/sorghum-red.jpg",art:{k:"sorghum",c:"#a8452d",d:"#7a2e1c"},n:{en:"Sorghum",ha:"Dawa"},g:{en:"Red",ha:"Ja"},base:37000,amp:.18,mudu:1.6},
- {id:"soybeans",img:"images/soybeans.jpg",art:{k:"soy"},n:{en:"Soybeans",ha:"Waken soya"},g:{en:"",ha:""},base:62000,amp:.12,mudu:1.4},
- {id:"sesame-white",img:"images/sesame.jpg",art:{k:"sesame",c:"#f4ecd8",d:"#c9b98f"},n:{en:"Sesame",ha:"Ridi"},g:{en:"White",ha:"Fari"},base:115000,amp:.10,mudu:1.3},
- {id:"sesame-mixed",img:"images/sesame.jpg",art:{k:"sesame",c:"#d9c08c",d:"#9c7a46",mix:true},n:{en:"Sesame",ha:"Ridi"},g:{en:"Mixed",ha:"Gauraye"},base:98000,amp:.10,mudu:1.3},
- {id:"beans-white",img:"images/beans.jpg",art:{k:"beans",c:"#f6f1e6",eye:"#2b2b2b"},n:{en:"Beans",ha:"Wake"},g:{en:"White",ha:"Fari"},base:88000,amp:.15,mudu:1.7},
+ {id:"sorghum-red",img:"images/img-05-sorghum-red.webp",art:{k:"sorghum",c:"#a8452d",d:"#7a2e1c"},n:{en:"Sorghum",ha:"Dawa"},g:{en:"Red",ha:"Ja"},base:37000,amp:.18,mudu:1.6},
+ {id:"soybeans",img:"images/img-07-soybeans.webp",art:{k:"soy"},n:{en:"Soybeans",ha:"Waken soya"},g:{en:"",ha:""},base:62000,amp:.12,mudu:1.4},
+ {id:"sesame-white",img:"images/img-08-sesame-white.webp",art:{k:"sesame",c:"#f4ecd8",d:"#c9b98f"},n:{en:"Sesame",ha:"Ridi"},g:{en:"White",ha:"Fari"},base:115000,amp:.10,mudu:1.3},
+ {id:"sesame-mixed",img:"images/img-08-sesame-white.webp",art:{k:"sesame",c:"#d9c08c",d:"#9c7a46",mix:true},n:{en:"Sesame",ha:"Ridi"},g:{en:"Mixed",ha:"Gauraye"},base:98000,amp:.10,mudu:1.3},
+ {id:"beans-white",img:"images/img-09-beans-cowpea.webp",art:{k:"beans",c:"#f6f1e6",eye:"#2b2b2b"},n:{en:"Beans",ha:"Wake"},g:{en:"White",ha:"Fari"},base:88000,amp:.15,mudu:1.7},
  {id:"beans-brown",img:"images/beans.jpg",art:{k:"beans",c:"#9a5531"},n:{en:"Beans",ha:"Wake"},g:{en:"Brown (drum)",ha:"Ja"},base:95000,amp:.15,mudu:1.7},
- {id:"millet",img:"images/millet.jpg",art:{k:"millet"},n:{en:"Millet",ha:"Gero"},g:{en:"",ha:""},base:42000,amp:.18,mudu:1.7},
- {id:"groundnut",img:"images/groundnut.jpg",art:{k:"gnut"},n:{en:"Groundnut",ha:"Gyada"},g:{en:"Shelled",ha:"Ɓararre"},base:72000,amp:.12,mudu:1.1},
+ {id:"millet",img:"images/img-06-millet.webp",art:{k:"millet"},n:{en:"Millet",ha:"Gero"},g:{en:"",ha:""},base:42000,amp:.18,mudu:1.7},
+ {id:"groundnut",img:"images/img-10-groundnut.webp",art:{k:"gnut"},n:{en:"Groundnut",ha:"Gyada"},g:{en:"Shelled",ha:"Ɓararre"},base:72000,amp:.12,mudu:1.1},
  {id:"rice-paddy",img:"images/rice-paddy.jpg",art:{k:"rice"},n:{en:"Rice",ha:"Shinkafa"},g:{en:"Paddy",ha:"Da ɓawo"},base:47000,amp:.14,mudu:1.1}
 ];
 const MARKETS=[
