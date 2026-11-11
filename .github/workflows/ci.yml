@@ -37,10 +37,21 @@ jobs:
     needs: docker
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Trigger Render deploy
         env:
           HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
         run: |
           if [ -z "$HOOK" ]; then echo "RENDER_DEPLOY_HOOK not set - skipping deploy"; exit 0; fi
-          curl -fsS -X POST "$HOOK"
+          # Render's hook sometimes hangs or returns a 5xx (e.g. 520). Give each try 60 s, retry 3 times.
+          for i in 1 2 3; do
+            code=$(curl -sS -o /tmp/render.out -w "%{http_code}" --max-time 60 -X POST "$HOOK" || true)
+            if [ "${code:-000}" -ge 200 ] 2>/dev/null && [ "$code" -lt 300 ]; then
+              echo "Render deploy triggered (HTTP $code)"; exit 0
+            fi
+            echo "Attempt $i: Render returned HTTP ${code:-000}. Retrying in 20 s..."
+            sleep 20
+          done
+          echo "::error::Render deploy hook failed 3 times. Open Render > kasuwa-api > Manual Deploy > Deploy latest commit."
+          exit 1
