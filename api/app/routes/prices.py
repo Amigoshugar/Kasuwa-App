@@ -1,10 +1,10 @@
 from datetime import date, timedelta
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.config import settings
+from app.auth import require_admin
 from app.db import get_db
 from app.engine import run as engine_run
 from app.engine.model import confidence_level, forecast
@@ -35,6 +35,18 @@ def prices_today(commodity: str, state: str | None = None, db: Session = Depends
     return [to_out(r) for r in db.scalars(q.order_by(DailyPrice.price)).all()]
 
 
+@router.get("/prices/all", response_model=list[PriceOut])
+def prices_all(days: int = Query(120, ge=1, le=366), db: Session = Depends(get_db)):
+    """Every published price for the last `days` days, all markets and commodities.
+
+    One request instead of one per market and commodity; used by the web app on load.
+    """
+    since = engine_run.today_lagos() - timedelta(days=days)
+    rows = db.scalars(select(DailyPrice).where(DailyPrice.date > since)
+                      .order_by(DailyPrice.market_id, DailyPrice.commodity_id, DailyPrice.date)).all()
+    return [to_out(r) for r in rows]
+
+
 @router.get("/prices/history", response_model=list[PriceOut])
 def prices_history(market: str, commodity: str, days: int = Query(90, ge=1, le=730),
                    db: Session = Depends(get_db)):
@@ -55,10 +67,11 @@ def get_forecast(market: str, commodity: str, db: Session = Depends(get_db)):
             for p in forecast(history)]
 
 
-@router.post("/engine/run")
-def run_engine(day: date | None = None, x_admin_token: str = Header(default="")):
-    """Re-publish all prices for a day. Needs the X-Admin-Token header."""
-    if x_admin_token != settings.admin_token or settings.admin_token == "change-me":
-        raise HTTPException(status_code=401, detail="Admin token missing or wrong")
+@router.post("/engine/run", dependencies=[Depends(require_admin)])
+def run_engine(day: date | None = None):
+    """Recompute proposals for a day (called by the scheduled GitHub Action).
+
+    Needs the X-Admin-Token header. Proposals still need publishing in the admin dashboard.
+    """
     n = engine_run.run(day)
-    return {"published": n, "day": str(day or engine_run.today_lagos())}
+    return {"proposed": n, "day": str(day or engine_run.today_lagos())}

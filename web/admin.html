@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kasuwa Admin</title>
+<!-- Optional: set the API address here. Empty = same rules as the public app. -->
+<meta name="kasuwa-api" content="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  /* Admin: same Kasuwa tokens; a dense review table with one panel for the selected market's reports */
+  --indigo:#232f6b;
+  --gold:#c4860f;
+  --bg:#f1f2f6;
+  --surface:#ffffff;
+  --line:#dcdfe9;
+  --text:#191c2c;
+  --muted:#5a5f77;
+  --soft:#e8eaf3;
+  --up:#1d7f49;
+  --down:#b8322a;
+  --warn:#a76a00;
+  --kano:#3b4cad;
+  --kaduna:#16807f;
+  --katsina:#b8770e;
+  --mast-text:#f4f5fb;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --indigo:#1a2350; --gold:#e3a63a; --bg:#10121c; --surface:#181b29; --line:#2b2f44; --text:#e9eaf3; --muted:#9a9fb8; --soft:#22263a;
+    --up:#4cc283; --down:#f07a6e; --warn:#e3a63a; --kano:#8191ef; --kaduna:#4cc4c2; --katsina:#e9ae4c; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --indigo:#1a2350; --gold:#e3a63a; --bg:#10121c; --surface:#181b29; --line:#2b2f44; --text:#e9eaf3; --muted:#9a9fb8; --soft:#22263a;
+  --up:#4cc283; --down:#f07a6e; --warn:#e3a63a; --kano:#8191ef; --kaduna:#4cc4c2; --katsina:#e9ae4c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.mast{background:var(--indigo);color:var(--mast-text);border-bottom:3px solid var(--gold)}
+.wrap{max-width:1320px;margin:0 auto;padding:0 20px}
+.mast-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand h1{font-family:var(--display);font-weight:800;font-size:21px;margin:0}
+.brand span{font-size:12px;opacity:.8;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:1px 9px}
+.mast a{color:var(--mast-text);font-size:13px;opacity:.85}
+h2{font-family:var(--display);font-weight:800;font-size:22px;margin:0}
+.btn{background:var(--gold);color:#1b1404;border:0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:var(--surface);border:1px solid var(--line);color:var(--text)}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn.danger{background:none;border:1px solid color-mix(in srgb,var(--down) 45%,transparent);color:var(--down)}
+.mast .btn.ghost{background:none;color:var(--mast-text);border-color:rgba(255,255,255,.4)}
+input[type=date],input[type=password],input[type=number],select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:14px}
+main{padding:18px 0 48px}
+.login{max-width:380px;margin:60px auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px}
+.login p{color:var(--muted);margin:6px 0 16px}
+.login form{display:flex;flex-direction:column;gap:12px}
+.err{color:var(--down);font-size:13px;min-height:18px}
+.bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end;margin:14px 0}
+.field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:500}
+.spacer{flex:1}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:4px 0 14px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+.tile .k{font-size:12px;color:var(--muted);font-weight:500}
+.tile .v{font-family:var(--display);font-size:24px;font-weight:800}
+.tile.attn{border-color:var(--gold);box-shadow:inset 3px 0 0 var(--gold)}
+@media (max-width:760px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.layout{display:block}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th{font-size:12px;font-weight:600;color:var(--muted);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;background:var(--surface)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.sel td{background:var(--soft)}
+tr.row:hover td{background:color-mix(in srgb,var(--soft) 60%,transparent)}
+.num{text-align:right;white-space:nowrap}
+.mname{font-weight:600}
+.sub{font-size:12px;color:var(--muted)}
+.price{font-weight:600}
+.final{width:110px;text-align:right}
+.final.edited{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 8%,var(--surface))}
+.pill{display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;border-radius:999px;padding:1px 8px;border:1px solid;white-space:nowrap;margin:1px 2px 1px 0}
+.pill.good{color:var(--up);border-color:color-mix(in srgb,var(--up) 40%,transparent);background:color-mix(in srgb,var(--up) 9%,transparent)}
+.pill.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent);background:color-mix(in srgb,var(--warn) 9%,transparent)}
+.pill.bad{color:var(--down);border-color:color-mix(in srgb,var(--down) 40%,transparent);background:color-mix(in srgb,var(--down) 9%,transparent)}
+.pill.quiet{color:var(--muted);border-color:var(--line)}
+.chg.up{color:var(--up)}.chg.down{color:var(--down)}
+.acts{display:flex;gap:6px;justify-content:flex-end;white-space:nowrap}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(400px,100%);overflow-y:auto;padding:18px;border-radius:0;border-width:0 0 0 1px;box-shadow:-12px 0 32px rgba(15,18,40,.18);z-index:5}
+.panel h3{font-family:var(--display);font-size:17px;margin:0}
+.panel .rep{border-top:1px solid var(--line);padding:10px 0;display:grid;grid-template-columns:1fr auto;gap:4px 10px}
+.panel .rep .p{font-weight:600;text-align:right}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:4px 9px;font-size:12px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--indigo);color:#fff}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-top:6px}
+.tabs button{background:none;border:0;padding:9px 14px;cursor:pointer;font-weight:500;border-bottom:2px solid transparent;color:var(--muted)}
+.tabs button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--gold)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:10px;font-size:13px;display:none;z-index:9}
+.empty{padding:28px;color:var(--muted);text-align:center}
+.legend{font-size:12px;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="wrap mast-row">
+    <div class="brand"><h1>Kasuwa</h1><span>Admin</span></div>
+    <div style="display:flex;gap:14px;align-items:center">
+      <a href="index.html">Open public app</a>
+      <button type="button" class="btn ghost small" id="logout" hidden>Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="loginView" class="login" hidden>
+    <h2>Sign in</h2>
+    <p>Use the admin password. It is the <b>ADMIN_TOKEN</b> value in Render → kasuwa-api → Environment.</p>
+    <form id="loginForm">
+      <label class="field" for="pw">Admin password<input id="pw" type="password" autocomplete="current-password" required></label>
+      <button class="btn" type="submit" id="loginBtn">Sign in</button>
+      <div class="err" id="loginErr" role="alert"></div>
+    </form>
+  </section>
+
+  <section id="appView" hidden>
+    <div class="bar">
+      <div><h2>Review and publish prices</h2><div class="sub" id="apiInfo"></div></div>
+      <div class="spacer"></div>
+      <label class="field" for="day">Day<input type="date" id="day"></label>
+      <button type="button" class="btn ghost" id="refresh">Refresh</button>
+      <button type="button" class="btn ghost" id="propose" title="Recompute every proposal for this day from the reports">Recompute proposals</button>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" aria-selected="true" data-tab="queue">Review queue</button>
+      <button type="button" role="tab" aria-selected="false" data-tab="log">Publish log</button>
+    </div>
+
+    <div id="queueTab">
+      <div class="bar">
+        <div class="field">Show<div class="seg" id="statusSeg"></div></div>
+        <label class="field" for="fCom">Commodity<select id="fCom"><option value="">All commodities</option></select></label>
+        <label class="field" for="fState">State<select id="fState"><option value="">All states</option><option>Kano</option><option>Kaduna</option><option>Katsina</option></select></label>
+        <div class="spacer"></div>
+        <button type="button" class="btn" id="publishSel" disabled>Publish selected</button>
+      </div>
+      <div class="layout nopanel" id="layout">
+        <div class="card table-wrap"><table id="queue"></table></div>
+        <aside class="card panel" id="panel" hidden></aside>
+      </div>
+      <div class="legend">Final price starts at the engine's proposal. Change it to override; the log keeps both. Flags: <span class="pill bad">Big move</span> more than 20% from the last published price · <span class="pill warn">Outliers</span> reports set aside · <span class="pill quiet">Estimated</span> no usable reports today.</div>
+    </div>
+
+    <div id="logTab" hidden>
+      <div class="card table-wrap" style="margin-top:14px"><table id="log"></table></div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+const API_BASE=(()=>{
+  const meta=document.querySelector('meta[name="kasuwa-api"]');
+  if(meta&&meta.content)return meta.content.replace(/\/$/,"");
+  const h=location.hostname;
+  if(h==="localhost"||h==="127.0.0.1")return "http://localhost:8000";
+  if(h.endsWith(".app.github.dev"))return location.origin.replace("-8080.","-8000.");
+  return "https://kasuwa-api.onrender.com";
+})();
+const MARKETS={dawanau:["Dawanau","Kano"],singer:["Singer","Kano"],bichi:["Bichi","Kano"],gwarzo:["Gwarzo","Kano"],kura:["Kura","Kano"],wudil:["Wudil","Kano"],giwa:["Giwa","Kaduna"],makarfi:["Makarfi","Kaduna"],zaria:["Zaria (Sabon Gari)","Kaduna"],ikara:["Ikara","Kaduna"],saminaka:["Saminaka","Kaduna"],kawo:["Kawo (Kaduna city)","Kaduna"],charanchi:["Charanchi","Katsina"],funtua:["Funtua","Katsina"],dandume:["Dandume","Katsina"],malumfashi:["Malumfashi","Katsina"],jibia:["Jibia","Katsina"],katsina:["Katsina central","Katsina"]};
+const COMS={"maize-white":"Maize · White","maize-yellow":"Maize · Yellow","sorghum-white":"Sorghum · White","sorghum-red":"Sorghum · Red","soybeans":"Soybeans","sesame-white":"Sesame · White","sesame-mixed":"Sesame · Mixed","beans-white":"Beans · White","beans-brown":"Beans · Brown","millet":"Millet","groundnut":"Groundnut","rice-paddy":"Rice · Paddy"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const naira=v=>v==null?"—":"₦"+Math.round(v).toLocaleString("en-NG");
+const mName=id=>(MARKETS[id]||[id])[0],mState=id=>(MARKETS[id]||["",""])[1],cName=id=>COMS[id]||id;
+const lagosToday=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Lagos"}).format(new Date());
+
+let TOKEN=null;
+try{TOKEN=sessionStorage.getItem("kasuwa-admin");}catch(e){}
+const S={day:lagosToday(),status:"todo",com:"",st:"",items:[],sel:new Set(),edits:{},open:null,reports:[],tab:"queue"};
+
+function toast(msg){const t=$("toast");t.textContent=msg;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",3500);}
+async function api(path,opts={},timeoutMs=70000){
+  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),timeoutMs);
+  try{
+    const r=await fetch(API_BASE+path,{...opts,signal:ctl.signal,headers:{"Content-Type":"application/json","X-Admin-Token":TOKEN||"",...(opts.headers||{})}});
+    if(r.status===401){signOut("Your password was not accepted. Sign in again.");throw new Error("Not signed in");}
+    if(!r.ok){let d="";try{d=(await r.json()).detail;}catch(e){}throw new Error(typeof d==="string"&&d?d:"HTTP "+r.status);}
+    return await r.json();
+  }catch(e){if(e.name==="AbortError")throw new Error("The server took too long. It may be waking up; try again.");throw e;}
+  finally{clearTimeout(tm);}
+}
+function signOut(msg){
+  TOKEN=null;try{sessionStorage.removeItem("kasuwa-admin");}catch(e){}
+  $("appView").hidden=true;$("loginView").hidden=false;$("logout").hidden=true;$("loginErr").textContent=msg||"";
+}
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  TOKEN=$("pw").value.trim();$("loginBtn").disabled=true;$("loginErr").textContent="Checking… the server may take up to a minute to wake up.";
+  try{
+    await api("/admin/check");
+    try{sessionStorage.setItem("kasuwa-admin",TOKEN);}catch(e){}
+    $("pw").value="";showApp();
+  }catch(err){if(TOKEN)$("loginErr").textContent="Could not sign in: "+err.message;}
+  finally{$("loginBtn").disabled=false;}
+});
+$("logout").addEventListener("click",()=>signOut(""));
+
+function showApp(){
+  $("loginView").hidden=true;$("appView").hidden=false;$("logout").hidden=false;
+  $("apiInfo").textContent="Server: "+API_BASE.replace(/^https?:\/\//,"");
+  $("day").value=S.day;
+  $("fCom").innerHTML='<option value="">All commodities</option>'+Object.entries(COMS).map(([k,v])=>`<option value="${k}">${esc(v)}</option>`).join("");
+  load();
+}
+
+async function load(){
+  $("queue").innerHTML=`<tbody><tr><td class="empty">Loading…</td></tr></tbody>`;
+  try{
+    S.items=await api("/admin/queue?day="+S.day);
+    S.sel.clear();S.edits={};
+    renderAll();
+    if(S.tab==="log")loadLog();
+  }catch(e){$("queue").innerHTML=`<tbody><tr><td class="empty">Could not load the queue: ${esc(e.message)}</td></tr></tbody>`;}
+}
+const key=i=>i.market_id+"|"+i.commodity_id;
+function flags(i){
+  const f=[];
+  if(i.big_move)f.push('<span class="pill bad">Big move</span>');
+  if(i.n_outliers)f.push(`<span class="pill warn">${i.n_outliers} outlier${i.n_outliers>1?"s":""}</span>`);
+  if(i.is_estimated)f.push(`<span class="pill quiet">${i.reason==="closed"?"Market closed":i.reason==="stale"?"No recent data":"Estimated"}</span>`);
+  if(i.confidence_level==="low"&&!i.is_estimated)f.push('<span class="pill warn">Low confidence</span>');
+  return f.join("")||'<span class="sub">—</span>';
+}
+function statusPill(i){
+  return i.status==="published"?'<span class="pill good">Published</span>':i.status==="changed"?'<span class="pill warn">Changed since publish</span>':'<span class="pill quiet">Needs review</span>';
+}
+function visible(){
+  return S.items.filter(i=>(S.status==="all"||(S.status==="todo"?i.status!=="published":i.status==="published"))
+    &&(!S.com||i.commodity_id===S.com)&&(!S.st||mState(i.market_id)===S.st))
+    .sort((a,b)=>(b.big_move-a.big_move)||(b.n_outliers-a.n_outliers)||cName(a.commodity_id).localeCompare(cName(b.commodity_id))||mName(a.market_id).localeCompare(mName(b.market_id)));
+}
+function renderTiles(){
+  const todo=S.items.filter(i=>i.status!=="published").length,flagged=S.items.filter(i=>i.status!=="published"&&(i.big_move||i.n_outliers||i.confidence_level==="low")).length;
+  const pub=S.items.filter(i=>i.status==="published").length,reps=S.items.reduce((a,i)=>a+i.n_reports+i.n_outliers,0);
+  $("tiles").innerHTML=`<div class="tile ${todo?"attn":""}"><div class="k">Needs review</div><div class="v">${todo}</div></div>
+   <div class="tile"><div class="k">Flagged</div><div class="v">${flagged}</div></div>
+   <div class="tile"><div class="k">Published for this day</div><div class="v">${pub}</div></div>
+   <div class="tile"><div class="k">Reports received</div><div class="v">${reps}</div></div>`;
+}
+function renderQueue(){
+  $("statusSeg").innerHTML=[["todo","To review"],["published","Published"],["all","All"]].map(([v,l])=>`<button type="button" data-status="${v}" aria-pressed="${S.status===v}">${l}</button>`).join("");
+  const rows=visible();
+  if(!rows.length){
+    $("queue").innerHTML=`<tbody><tr><td class="empty">${S.items.length?"Nothing here with these filters.":"No proposals for this day yet. They appear when reports come in, or click “Recompute proposals”."}</td></tr></tbody>`;
+  } else {
+    const allSel=rows.every(i=>S.sel.has(key(i)));
+    $("queue").innerHTML=`<thead><tr><th><input type="checkbox" id="selAll" aria-label="Select all" ${allSel?"checked":""}></th><th>Market</th><th>Commodity</th><th class="num">Reports</th><th class="num">Proposed</th><th class="num">Last published</th><th>Flags</th><th class="num">Final price ₦</th><th>Status</th><th></th></tr></thead><tbody>`+
+    rows.map(i=>{
+      const k=key(i),chg=i.prev_price?(i.proposed_price/i.prev_price-1)*100:null,ed=S.edits[k];
+      return `<tr class="row${S.open===k?" sel":""}" data-k="${k}">
+       <td><input type="checkbox" data-pick="${k}" aria-label="Select ${esc(mName(i.market_id))}" ${S.sel.has(k)?"checked":""}></td>
+       <td><span class="mname">${esc(mName(i.market_id))}</span><div class="sub">${esc(mState(i.market_id))}</div></td>
+       <td>${esc(cName(i.commodity_id))}</td>
+       <td class="num">${i.n_reports}${i.n_outliers?` <span class="sub">+${i.n_outliers}</span>`:""}</td>
+       <td class="num"><span class="price">${naira(i.proposed_price)}</span><div class="sub">${naira(i.low)}–${naira(i.high).slice(1)} · ${i.confidence}</div></td>
+       <td class="num">${naira(i.prev_price)}${chg!=null?`<div class="sub"><span class="chg ${chg>=0?"up":"down"}">${chg>=0?"▲":"▼"} ${Math.abs(chg).toFixed(1)}%</span> · ${esc(i.prev_date)}</div>`:'<div class="sub">first price</div>'}</td>
+       <td>${flags(i)}</td>
+       <td class="num"><input class="final${ed?" edited":""}" type="number" min="1" step="any" data-final="${k}" value="${ed??Math.round(i.published_price??i.proposed_price)}" aria-label="Final price"></td>
+       <td>${statusPill(i)}${i.published_price!=null?`<div class="sub">live ${naira(i.published_price)}</div>`:""}</td>
+       <td><div class="acts"><button type="button" class="btn ghost small" data-open="${k}">Reports</button><button type="button" class="btn small" data-pub="${k}">${i.status==="published"?"Republish":"Publish"}</button>${i.published_price!=null?`<button type="button" class="btn danger small" data-unpub="${k}">Unpublish</button>`:""}</div></td></tr>`;}).join("")+`</tbody>`;
+  }
+  const n=[...S.sel].filter(k=>S.items.some(i=>key(i)===k)).length;
+  $("publishSel").disabled=!n;$("publishSel").textContent=n?`Publish selected (${n})`:"Publish selected";
+}
+function renderPanel(){
+  const p=$("panel");
+  if(!S.open){p.hidden=true;$("layout").classList.add("nopanel");return;}
+  p.hidden=false;$("layout").classList.remove("nopanel");
+  const [m,c]=S.open.split("|"),i=S.items.find(x=>key(x)===S.open);
+  const dec=r=>r.decision||"auto";
+  p.innerHTML=`<div style="display:flex;justify-content:space-between;gap:8px;align-items:start"><div><h3>${esc(mName(m))}</h3><div class="sub">${esc(cName(c))} · ${esc(S.day)}</div></div><button type="button" class="btn ghost small" id="closePanel" aria-label="Close">✕</button></div>
+   ${i?`<div style="margin:10px 0 4px">Proposed <b>${naira(i.proposed_price)}</b> from ${i.n_reports} report${i.n_reports===1?"":"s"}</div>`:""}
+   ${S.reports===null?'<div class="empty">Loading reports…</div>':S.reports.length?S.reports.map(r=>{
+     const st=r.status==="accepted"?'<span class="pill good">Used</span>':r.status==="outlier"?'<span class="pill warn">Outlier</span>':r.status==="excluded"?'<span class="pill bad">Excluded</span>':`<span class="pill quiet">${esc(r.status)}</span>`;
+     const t=new Date(r.reported_at);
+     return `<div class="rep"><div><b>${esc(r.reporter_type)}</b> <span class="sub">${esc(r.phone||"no phone")} · ${t.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</span><div class="sub">Sent ${naira(r.raw_price)} per ${r.unit==="bag100"?"100 kg bag":r.unit==="bag50"?"50 kg bag":"mudu"} · weight ${r.trust}</div></div><div class="p">${naira(r.price_per_100kg)}<div>${st}</div></div>
+      <div style="grid-column:1/-1" class="seg" role="group" aria-label="Decision for report ${r.id}">${["auto","include","exclude"].map(d=>`<button type="button" data-rev="${r.id}" data-dec="${d}" aria-pressed="${dec(r)===d}">${d==="auto"?"Let the model decide":d==="include"?"Always use":"Leave out"}</button>`).join("")}</div></div>`;}).join(""):'<div class="empty">No reports for this day. The proposal is an estimate from the last published price.</div>'}`;
+}
+function renderAll(){renderTiles();renderQueue();renderPanel();}
+
+async function openReports(k){
+  S.open=k;S.reports=null;renderQueue();renderPanel();
+  const [m,c]=k.split("|");
+  try{S.reports=await api(`/admin/reports?market=${m}&commodity=${c}&day=${S.day}`);}catch(e){S.reports=[];toast(e.message);}
+  if(S.open===k)renderPanel();
+}
+async function publish(keys){
+  const items=keys.map(k=>{const [m,c]=k.split("|"),i=S.items.find(x=>key(x)===k),v=S.edits[k];const it={market_id:m,commodity_id:c};if(v!=null&&i&&Math.abs(v-i.proposed_price)>0.5)it.price=v;return it;});
+  try{const r=await api("/admin/publish",{method:"POST",body:JSON.stringify({day:S.day,items})});toast(`Published ${r.published} price${r.published===1?"":"s"}.`);await load();}
+  catch(e){toast("Not published: "+e.message);}
+}
+
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.status){S.status=b.dataset.status;renderQueue();}
+  else if(b.dataset.tab){S.tab=b.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-selected",x.dataset.tab===S.tab));$("queueTab").hidden=S.tab!=="queue";$("logTab").hidden=S.tab!=="log";if(S.tab==="log")loadLog();}
+  else if(b.dataset.open){openReports(b.dataset.open);}
+  else if(b.id==="closePanel"){S.open=null;renderQueue();renderPanel();}
+  else if(b.dataset.pub){b.disabled=true;await publish([b.dataset.pub]);}
+  else if(b.dataset.unpub){
+    if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="Confirm unpublish";setTimeout(()=>{if(b.isConnected){b.dataset.armed="";b.textContent="Unpublish";}},4000);return;}
+    const [m,c]=b.dataset.unpub.split("|");
+    try{await api("/admin/unpublish",{method:"POST",body:JSON.stringify({day:S.day,market_id:m,commodity_id:c})});toast("Unpublished.");await load();}catch(err){toast(err.message);}
+  }
+  else if(b.dataset.rev){
+    try{
+      await api(`/admin/reports/${b.dataset.rev}/review`,{method:"POST",body:JSON.stringify({decision:b.dataset.dec})});
+      const k=S.open;S.items=await api("/admin/queue?day="+S.day);delete S.edits[k];
+      renderTiles();renderQueue();await openReports(k);toast("Proposal recalculated.");
+    }catch(err){toast(err.message);}
+  }
+  else if(b.id==="publishSel"){b.disabled=true;await publish([...S.sel].filter(k=>S.items.some(i=>key(i)===k)));}
+  else if(b.id==="refresh"){load();}
+  else if(b.id==="propose"){b.disabled=true;try{const r=await api("/admin/propose?day="+S.day,{method:"POST"});toast(`Recomputed ${r.proposed} proposals.`);await load();}catch(err){toast(err.message);}finally{b.disabled=false;}}
+});
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset.pick){t.checked?S.sel.add(t.dataset.pick):S.sel.delete(t.dataset.pick);renderQueue();}
+  else if(t.id==="selAll"){visible().forEach(i=>t.checked?S.sel.add(key(i)):S.sel.delete(key(i)));renderQueue();}
+  else if(t.dataset.final){const v=+t.value;if(v>0){S.edits[t.dataset.final]=v;t.classList.add("edited");}}
+  else if(t.id==="day"){S.day=t.value||lagosToday();S.open=null;load();}
+  else if(t.id==="fCom"){S.com=t.value;renderQueue();}
+  else if(t.id==="fState"){S.st=t.value;renderQueue();}
+});
+
+async function loadLog(){
+  $("log").innerHTML=`<tbody><tr><td class="empty">Loading…</td></tr></tbody>`;
+  try{
+    const rows=await api("/admin/log?days=30");
+    $("log").innerHTML=rows.length?`<thead><tr><th>When</th><th>Action</th><th>Day</th><th>Market</th><th>Commodity</th><th class="num">Price</th><th class="num">Proposed</th><th>Note</th></tr></thead><tbody>`+rows.map(r=>{const ov=r.proposed_price!=null&&r.price!=null&&Math.abs(r.price-r.proposed_price)>0.5;return `<tr><td>${new Date(r.created_at).toLocaleString("en-GB",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</td><td>${r.action==="publish"?'<span class="pill good">Published</span>':'<span class="pill bad">Unpublished</span>'}</td><td>${esc(r.date)}</td><td>${esc(mName(r.market_id))}</td><td>${esc(cName(r.commodity_id))}</td><td class="num price">${naira(r.price)}${ov?' <span class="pill warn">override</span>':""}</td><td class="num sub">${naira(r.proposed_price)}</td><td class="sub">${esc(r.note||"")}</td></tr>`;}).join("")+`</tbody>`:`<tbody><tr><td class="empty">Nothing published in the last 30 days.</td></tr></tbody>`;
+  }catch(e){$("log").innerHTML=`<tbody><tr><td class="empty">${esc(e.message)}</td></tr></tbody>`;}
+}
+
+if(TOKEN){showApp();}else{signOut("");}
+})();
+</script>
+</body>
+</html>

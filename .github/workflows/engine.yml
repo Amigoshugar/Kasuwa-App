@@ -1,5 +1,6 @@
 name: Publish daily prices
 
+# Recomputes the day's PROPOSED prices; an admin still publishes them in admin.html.
 # 11:00 and 17:00 UTC = 12:00 and 18:00 in Lagos. GitHub may start these a few minutes late.
 on:
   schedule:

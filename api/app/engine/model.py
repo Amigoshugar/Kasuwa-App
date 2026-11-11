@@ -68,11 +68,19 @@ def weighted_quantile(reports: list[Report], q: float) -> float:
     return items[-1].price
 
 
-def compute_daily(reports: list[Report], prev_price: float | None) -> DailyResult | None:
-    """Turn one day's reports for one market and commodity into a published price.
+def is_big_move(price: float, prev_price: float | None) -> bool:
+    return bool(prev_price) and abs(price / prev_price - 1) > MAX_DAILY_MOVE
 
-    Sets each report's status. Returns None when nothing can be published
-    (no reports, all outliers, or a large move that is not confirmed).
+
+def compute_daily(reports: list[Report], prev_price: float | None,
+                  force_accept: frozenset[int] = frozenset(),
+                  hold_big_moves: bool = True) -> DailyResult | None:
+    """Turn one day's reports for one market and commodity into a price.
+
+    Sets each report's status. Returns None when nothing can be computed
+    (no reports, all outliers, or - if hold_big_moves - a large unconfirmed move).
+    force_accept: report ids an admin chose to include even if they look like outliers.
+    hold_big_moves=False is used when an admin reviews every price before it is published.
     """
     if not reports:
         return None
@@ -85,7 +93,10 @@ def compute_daily(reports: list[Report], prev_price: float | None) -> DailyResul
 
     for r in reports:
         r.z = 0.6745 * (r.price - centre) / mad
-        r.status = "outlier" if abs(r.z) > OUTLIER_Z else "accepted"
+        if r.id is not None and r.id in force_accept:
+            r.status = "accepted"
+        else:
+            r.status = "outlier" if abs(r.z) > OUTLIER_Z else "accepted"
 
     accepted = [r for r in reports if r.status == "accepted"]
     if not accepted:
@@ -95,7 +106,7 @@ def compute_daily(reports: list[Report], prev_price: float | None) -> DailyResul
     low = min(weighted_quantile(accepted, 0.25), price)
     high = max(weighted_quantile(accepted, 0.75), price)
 
-    if prev_price and abs(price / prev_price - 1) > MAX_DAILY_MOVE:
+    if hold_big_moves and is_big_move(price, prev_price):
         has_agent = any(r.type in ("agent", "sale") for r in accepted)
         if not (has_agent and len(accepted) >= 2):
             for r in accepted:

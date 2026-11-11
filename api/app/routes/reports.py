@@ -3,10 +3,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.engine import run as engine_run
+from app.engine import run as engine
 from app.engine.model import to_per_100kg
 from app.models import Commodity, Market, PriceReport, Reporter, UnitConversion
-from app.routes.prices import to_out
 from app.schemas import ReportIn, ReportResult
 
 router = APIRouter()
@@ -14,7 +13,12 @@ router = APIRouter()
 
 @router.post("/reports", response_model=ReportResult, status_code=201)
 def submit_report(body: ReportIn, db: Session = Depends(get_db)):
-    """Store a price report, then re-publish that market's price straight away."""
+    """Store a price report and update that market's proposal for the admin to review.
+
+    Nothing becomes public here: an admin publishes prices from the dashboard.
+    The reporter is not told whether their report looked like an outlier,
+    so nobody can learn how to game the filter.
+    """
     market = db.get(Market, body.market_id)
     commodity = db.get(Commodity, body.commodity_id)
     if not market or not commodity:
@@ -39,17 +43,14 @@ def submit_report(body: ReportIn, db: Session = Depends(get_db)):
     elif body.reporter_type == "agent":
         reporter_type = "farmer"  # an agent must identify themselves to get agent weight
 
-    day = engine_run.today_lagos()
+    day = engine.today_lagos()
     report = PriceReport(reporter_id=reporter_id, reporter_type=reporter_type,
                          market_id=market.id, commodity_id=commodity.id, raw_price=body.price,
                          unit=body.unit, price_per_100kg=round(per_100kg, 2), trade_date=day,
                          lat=body.lat, lng=body.lng)
     db.add(report)
     db.flush()
-
-    ratio = 1.0 if market.is_anchor else engine_run.anchor_ratio_for(db, commodity.id, day)
-    published = engine_run.publish_one(db, market, commodity.id, day, ratio)
+    engine.propose_for(db, market, commodity.id, day)
     db.commit()
-    db.refresh(report)
     return ReportResult(report_id=report.id, price_per_100kg=report.price_per_100kg,
-                        status=report.status, published=to_out(published) if published else None)
+                        status="received", published=None)

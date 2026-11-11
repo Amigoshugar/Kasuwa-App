@@ -83,3 +83,15 @@ def test_forecast_follows_trend():
     assert len(fc) == 7
     assert fc[-1].price < falling[-1][1]
     assert all(p.low < p.price < p.high for p in fc)
+
+
+def test_admin_can_force_include_an_outlier():
+    reps = [Report(35000, "agent", id=1), Report(35400, "agent", id=2), Report(12000, "farmer", id=3)]
+    compute_daily(reps, prev_price=35200, force_accept=frozenset({3}))
+    assert reps[2].status == "accepted"
+
+
+def test_big_move_not_held_when_admin_reviews():
+    reps = [Report(43750, "trader"), Report(43800, "trader"), Report(43700, "trader")]
+    res = compute_daily(reps, prev_price=35000, hold_big_moves=False)
+    assert res is not None and res.price == pytest.approx(43750, rel=0.01)

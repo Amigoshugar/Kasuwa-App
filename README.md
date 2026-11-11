@@ -2,9 +2,9 @@
 
 Daily grain prices for markets in **Kano, Kaduna and Katsina**, so farmers can sell and buyers can buy without a middleman setting the price.
 
-Kasuwa collects price reports from market agents, traders and farmers, checks them against each other, and publishes one trusted price per commodity, per market, per day, with a low–high range and a confidence score.
+Kasuwa collects price reports from market agents, traders and farmers, checks them against each other, and proposes one price per commodity, per market, per day, with a low–high range and a confidence score. **Nothing is public until an admin reviews and publishes it** from the admin dashboard.
 
-> **Status:** starter code. The front end in `web/` still shows **sample data**; connecting it to the API is the next step (see [Roadmap](#roadmap)).
+> **Status:** pilot build. The front end reads live prices from the API. If the API can't be reached within about a minute, it shows clearly labelled demo data instead.
 
 ---
 
@@ -27,7 +27,8 @@ kasuwa/
 │   ├── tests/              pytest tests for the model and the API
 │   ├── Dockerfile
 │   └── requirements.txt
-├── web/index.html          front end (single page, English + Hausa)
+├── web/index.html          public app (single page, English + Hausa)
+├── web/admin.html          admin dashboard: review, adjust and publish prices
 ├── docker-compose.yml      PostgreSQL + API + front end, for local or Codespaces
 ├── .devcontainer/          GitHub Codespaces setup
 ├── .github/workflows/
@@ -110,11 +111,25 @@ ruff check .       # lint
 | GET | `/health` | Checks the API and database are up |
 | GET | `/markets` | All markets |
 | GET | `/commodities` | All commodity grades, English and Hausa names |
-| POST | `/reports` | Submit a price; returns its status and the updated published price |
+| POST | `/reports` | Submit a price. It goes to the review queue; nothing is published |
 | GET | `/prices/today?commodity=maize-white&state=Kano` | Latest price in every market for one commodity |
+| GET | `/prices/all?days=120` | Every published price for the last N days (used by the web app on load) |
 | GET | `/prices/history?market=dawanau&commodity=maize-white&days=90` | Daily history for the trend chart |
 | GET | `/forecast?market=dawanau&commodity=maize-white` | 7-day outlook with a 90% band |
-| POST | `/engine/run` | Re-publishes all prices for a day. Needs header `X-Admin-Token` |
+| POST | `/engine/run` | Recomputes all proposals for a day (scheduled job). Needs `X-Admin-Token` |
+
+Admin endpoints (all need the `X-Admin-Token` header = `ADMIN_TOKEN`):
+
+| Method | Path | What it does |
+| --- | --- | --- |
+| GET | `/admin/check` | 200 if the password is right |
+| GET | `/admin/queue?day=` | Every proposal for a day, with last published price, flags and status |
+| GET | `/admin/reports?market=&commodity=&day=` | The reports behind one proposal (phone numbers masked) |
+| POST | `/admin/reports/{id}/review` | `{"decision": "include" \| "exclude" \| "auto"}`, then recomputes the proposal |
+| POST | `/admin/publish` | `{"day": "...", "items": [{"market_id", "commodity_id", "price"?, "note"?}]}`; `price` overrides the proposal |
+| POST | `/admin/unpublish` | Removes a published price |
+| POST | `/admin/propose?day=` | Recomputes every proposal for a day |
+| GET | `/admin/log?days=14` | Publish and unpublish history, with proposed vs published price |
 
 Example report:
 
@@ -124,6 +139,37 @@ curl -X POST http://localhost:8000/reports \
   -d '{"market_id":"dawanau","commodity_id":"maize-white","price":560,"unit":"mudu","reporter_type":"trader","phone":"08012345678"}'
 ```
 
+## Admin dashboard: reviewing and publishing
+
+Open `admin.html` on the same site as the app (for example `https://kasuwa-web.onrender.com/admin.html`, or http://localhost:8080/admin.html locally).
+
+1. **Sign in** with the admin password: the `ADMIN_TOKEN` value in Render → kasuwa-api → Environment (locally: `dev-admin-token`). It is kept only for the browser tab you are using.
+2. **Review queue**: one row per market and commodity with reports (or an estimate from the last published price). Flagged rows come first:
+   - **Big move**: more than 20% away from the last published price
+   - **Outliers**: reports the model set aside
+   - **Estimated**: no usable reports today
+   - **Low confidence**: few reporters or reports far apart
+3. **Reports**: opens the reports behind a proposal. For each one choose *Let the model decide*, *Always use* or *Leave out*; the proposal is recalculated.
+4. **Final price**: starts at the proposal. Type a different number to override it.
+5. **Publish** one row, or tick several and **Publish selected**. Only then does the price appear in the public app.
+6. **Unpublish** takes a price back down (click twice to confirm). **Publish log** lists every publish and unpublish, with proposed vs published prices.
+
+The page itself is public, but every action needs the password. Use a long, random `ADMIN_TOKEN` and change it if it leaks.
+
+## How the front end finds the API
+
+`web/index.html` picks the API address automatically:
+
+| Where the page is open | API it uses |
+| --- | --- |
+| `localhost` / `127.0.0.1` | `http://localhost:8000` |
+| GitHub Codespaces (`…-8080.app.github.dev`) | the same Codespace on port 8000 (set port 8000 to **Public** in the Ports tab) |
+| anywhere else (Render, your domain) | `https://kasuwa-api.onrender.com` |
+
+To point it somewhere else, set `<meta name="kasuwa-api" content="https://your-api">` near the top of `web/index.html`.
+
+On free hosting the API sleeps when idle, so the page shows "Connecting to the price server…" for up to a minute on the first visit.
+
 ## How a price is made
 
 1. **Normalise** – every report is converted to ₦ per 100 kg (`bag100`, `bag50` or `mudu`, using the market's mudu weight).
@@ -131,8 +177,9 @@ curl -X POST http://localhost:8000/reports \
 3. **Combine** – a trust-weighted median of the accepted reports. Weights: verified sale 1.0, agent 0.9, trader 0.6, farmer 0.3, times the reporter's own trust score. The 25th–75th percentile is the low–high range.
 4. **Hold big moves** – a change above 20% from yesterday is published only if an agent and at least two reporters confirm it.
 5. **Score confidence** – 0–100, higher with more reporters and closer agreement, lower without an agent. High ≥ 70, Medium 40–69, Low < 40.
-6. **Fill gaps** – with no usable reports, yesterday's price is carried forward and moved by today's change at Dawanau, labelled *estimated*. After 3 trading days without reports it shows *No recent data*.
-7. **Forecast** – a damped trend of the last 28 days. Replace with a seasonal / machine-learning model after 12 months of history.
+6. **Fill gaps** – with no usable reports, the last published price is carried forward and moved by today's change at Dawanau, labelled *estimated*. After 3 trading days without reports it shows *No recent data*.
+7. **Review** – every result above is only a *proposal*. An admin checks it in `admin.html`, can include or leave out reports and override the price, then publishes.
+8. **Forecast** – a damped trend of the last 28 days. Replace with a seasonal / machine-learning model after 12 months of history.
 
 The model lives in `api/app/engine/model.py` and has no database code, so it is easy to read and test.
 
@@ -188,7 +235,8 @@ Never commit real values. `.env` is in `.gitignore`.
 - [x] Price model and tests
 - [x] API, database tables, seed data
 - [x] Docker, Codespaces, CI/CD, scheduled price runs
-- [ ] Connect `web/index.html` to the API (replace the sample-data generator with `fetch` calls)
+- [x] Connect `web/index.html` to the API (with demo fallback)
+- [x] Admin review and publishing dashboard with audit log
 - [ ] Alembic migrations (instead of creating tables on start-up)
 - [ ] Phone-number login with SMS one-time codes; agent accounts with full weight
 - [ ] Rate limiting on `POST /reports`; GPS check against market boundaries
