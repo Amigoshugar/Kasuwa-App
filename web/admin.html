@@ -10,179 +10,168 @@
 <meta name="kasuwa-api" content="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-
+/* Kasuwa admin — matches Figma "05 Desktop · Admin review" */
 :root{
-  /* Layout: sticky glass app bar, photo hero with a live price, commodity photo rail, card-based board; bottom tab bar on phones */
-  --brand:#0e6b4f;
-  --brand-2:#0a5640;
-  --gold:#f2a51f;
-  --bg:#f4f6f2;
-  --surface:#ffffff;
-  --line:#e2e8e2;
-  --text:#14201a;
-  --muted:#5b6a62;
-  --soft:#edf3ee;
-  --up:#13834f;
-  --down:#c03a2b;
-  --warn:#b26b00;
-  --kano:#2f6fd6;
-  --kaduna:#0e9f8e;
-  --katsina:#e08a1e;
-  --indigo:var(--brand);
-  --mast-text:#ffffff;
-  --shadow:0 1px 2px rgba(16,32,24,.06),0 8px 24px rgba(16,32,24,.06);
-  --radius:18px;
+  --green:#0B5D44;--night:#0A1F18;--gold:#F5A524;--gold-ink:#2B1A00;
+  --bg:#F7F3EA;--sand-2:#EFE8D8;--surface:#FFFFFF;--line:#E4DDCC;--text:#14231C;--muted:#5E6B63;--soft:#FBF8F1;
+  --up:#178A52;--up-bg:#DFF3E8;--down:#C23B2A;--down-bg:#FBE3DF;--warn:#8A5A00;--warn-bg:#FFF0D1;--indigo:var(--green);
   --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
   --body:"Manrope","Segoe UI",system-ui,sans-serif;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --brand:#2fbf8a;--brand-2:#1c9c6f;--gold:#f5b640;--bg:#0d1411;--surface:#151f1a;--line:#26332c;--text:#e8efe9;--muted:#9aaba1;--soft:#1b2721;
-    --up:#4fd18f;--down:#ff7b6b;--warn:#f5b640;--kano:#7aa7ff;--kaduna:#45d3c1;--katsina:#f5b25a;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --brand:#2fbf8a;--brand-2:#1c9c6f;--gold:#f5b640;--bg:#0d1411;--surface:#151f1a;--line:#26332c;--text:#e8efe9;--muted:#9aaba1;--soft:#1b2721;
-  --up:#4fd18f;--down:#ff7b6b;--warn:#f5b640;--kano:#7aa7ff;--kaduna:#45d3c1;--katsina:#f5b25a;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);color-scheme:dark;
-}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.45;font-weight:500;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
 button,input,select{font:inherit;color:inherit}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
-
-*{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums}
-button,input,select{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.mast{background:linear-gradient(135deg,#0e6b4f,#0a4a37);color:var(--mast-text);border-bottom:3px solid var(--gold)}
-.wrap{max-width:1320px;margin:0 auto;padding:0 20px}
-.mast-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px}
-.brand h1{font-family:var(--display);font-weight:800;font-size:21px;margin:0}
-.brand span{font-size:12px;opacity:.8;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:1px 9px}
-.mast a{color:var(--mast-text);font-size:13px;opacity:.85}
-h2{font-family:var(--display);font-weight:800;font-size:22px;margin:0}
-.btn{background:var(--gold);color:#241500;border:0;border-radius:999px;padding:8px 14px;font-weight:600;cursor:pointer}
+[hidden]{display:none!important}
+.shell{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+.side{background:var(--night);color:#fff;padding:28px 20px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:26px}
+.brand img{width:34px;height:34px;display:block}
+.brand h1{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.04em;margin:0}
+.brand span{font-size:11px;font-weight:800;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:2px 8px}
+.nav{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;font-weight:700;font-size:15px;color:rgba(255,255,255,.65);background:none;border:0;cursor:pointer;text-align:left;text-decoration:none;width:100%}
+.nav:hover{color:#fff}
+.nav[aria-selected="true"]{background:rgba(245,165,36,.14);color:var(--gold)}
+.nav .count{margin-left:auto;background:var(--gold);color:var(--gold-ink);border-radius:999px;padding:1px 9px;font-size:12px;font-weight:800}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+.note{background:rgba(255,255,255,.06);border-radius:18px;padding:16px;font-size:13px;color:rgba(255,255,255,.75);line-height:1.5}
+.note b{color:#fff;display:block;margin-bottom:4px}
+.main{padding:32px 40px 48px;min-width:0}
+.eyebrow{font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--green)}
+h2{font-family:var(--display);font-weight:800;font-size:36px;letter-spacing:-.02em;margin:6px 0 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:var(--gold-ink);border:2px solid transparent;border-radius:999px;padding:11px 20px;font-weight:800;font-size:14px;cursor:pointer;line-height:1.1}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.btn.ghost{background:var(--surface);border:1px solid var(--line);color:var(--text)}
-.btn.small{padding:5px 10px;font-size:13px}
-.btn.danger{background:none;border:1px solid color-mix(in srgb,var(--down) 45%,transparent);color:var(--down)}
-.mast .btn.ghost{background:none;color:var(--mast-text);border-color:rgba(255,255,255,.4)}
-input[type=date],input[type=password],input[type=number],select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:14px}
-main{padding:18px 0 48px}
-.login{max-width:380px;margin:60px auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px}
-.login p{color:var(--muted);margin:6px 0 16px}
+.btn.ghost{background:transparent;border-color:var(--night);color:var(--night)}
+.btn.small{padding:6px 12px;font-size:13px}
+.btn.danger{background:none;border-color:color-mix(in srgb,var(--down) 45%,transparent);color:var(--down)}
+.side .btn.ghost{border-color:rgba(255,255,255,.35);color:#fff}
+input[type=date],input[type=password],input[type=number],select{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:9px 11px;font-size:14px;font-weight:700}
+.login{max-width:420px;margin:60px auto;background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:32px}
+.login p{color:var(--muted);margin:8px 0 18px}
 .login form{display:flex;flex-direction:column;gap:12px}
-.err{color:var(--down);font-size:13px;min-height:18px}
-.bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end;margin:14px 0}
-.field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:500}
+.err{color:var(--down);font-size:13px;min-height:18px;font-weight:700}
+.bar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;margin:0 0 22px}
+.field{display:flex;flex-direction:column;gap:5px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
 .spacer{flex:1}
-.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:4px 0 14px}
-.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
-.tile .k{font-size:12px;color:var(--muted);font-weight:500}
-.tile .v{font-family:var(--display);font-size:24px;font-weight:800}
-.tile.attn{border-color:var(--gold);box-shadow:inset 3px 0 0 var(--gold)}
-@media (max-width:760px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:0 0 22px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px 20px}
+.tile .k{font-size:13px;color:var(--muted);font-weight:700}
+.tile .v{font-family:var(--display);font-size:34px;font-weight:800;margin-top:4px}
+.tile.attn{background:var(--gold);border-color:var(--gold)}
+.tile.attn .k{color:#5a3a00}
+.tile.flag .v{color:var(--down)}
+@media (max-width:900px){.tiles{grid-template-columns:repeat(2,1fr)}}
 .layout{display:block}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:24px}
 .table-wrap{overflow-x:auto}
-table{border-collapse:collapse;width:100%}
-th{font-size:12px;font-weight:600;color:var(--muted);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;background:var(--surface)}
-td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+table{border-collapse:separate;border-spacing:0;width:100%}
+th{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:14px 10px;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;background:var(--bg)}
+th:first-child,td:first-child{padding-left:20px}
+td{padding:14px 10px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
+.panel td{white-space:normal}
+#queue td:nth-child(7){white-space:normal;min-width:110px}
+tbody tr:last-child td{border-bottom:0}
 tr.sel td{background:var(--soft)}
-tr.row:hover td{background:color-mix(in srgb,var(--soft) 60%,transparent)}
+tr.row:hover td{background:var(--soft)}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--green)}
 .num{text-align:right;white-space:nowrap}
-.mname{font-weight:600}
-.sub{font-size:12px;color:var(--muted)}
-.price{font-weight:600}
-.final{width:110px;text-align:right}
-.final.edited{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 8%,var(--surface))}
-.pill{display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;border-radius:999px;padding:1px 8px;border:1px solid;white-space:nowrap;margin:1px 2px 1px 0}
-.pill.good{color:var(--up);border-color:color-mix(in srgb,var(--up) 40%,transparent);background:color-mix(in srgb,var(--up) 9%,transparent)}
-.pill.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent);background:color-mix(in srgb,var(--warn) 9%,transparent)}
-.pill.bad{color:var(--down);border-color:color-mix(in srgb,var(--down) 40%,transparent);background:color-mix(in srgb,var(--down) 9%,transparent)}
-.pill.quiet{color:var(--muted);border-color:var(--line)}
-.chg.up{color:var(--up)}.chg.down{color:var(--down)}
+.mname{font-weight:800}
+.sub{font-size:12px;color:var(--muted);font-weight:600}
+.price{font-family:var(--display);font-weight:800;font-size:16px}
+.final{width:120px;text-align:right;font-family:var(--display);font-weight:800}
+.final.edited{border-color:var(--gold);background:#FFF7E5}
+.pill{display:inline-flex;align-items:center;font-size:12px;font-weight:800;border-radius:999px;padding:4px 10px;white-space:nowrap;margin:1px 2px 1px 0;border:0}
+.pill.good{color:var(--up);background:var(--up-bg)}
+.pill.warn{color:var(--warn);background:var(--warn-bg)}
+.pill.bad{color:var(--down);background:var(--down-bg)}
+.pill.quiet{color:var(--muted);background:var(--sand-2)}
+.chg{font-weight:800;font-size:12px}.chg.up{color:var(--up)}.chg.down{color:var(--down)}
 .acts{display:flex;gap:6px;justify-content:flex-end;white-space:nowrap}
-.panel{position:fixed;top:0;right:0;bottom:0;width:min(400px,100%);overflow-y:auto;padding:18px;border-radius:0;border-width:0 0 0 1px;box-shadow:-12px 0 32px rgba(15,18,40,.18);z-index:5}
-.panel h3{font-family:var(--display);font-size:17px;margin:0}
-.panel .rep{border-top:1px solid var(--line);padding:10px 0;display:grid;grid-template-columns:1fr auto;gap:4px 10px}
-.panel .rep .p{font-weight:600;text-align:right}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.seg button{border:0;background:var(--surface);padding:4px 9px;font-size:12px;cursor:pointer}
-.seg button+button{border-left:1px solid var(--line)}
-.seg button[aria-pressed="true"]{background:var(--indigo);color:#fff}
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-top:6px}
-.tabs button{background:none;border:0;padding:9px 14px;cursor:pointer;font-weight:500;border-bottom:2px solid transparent;color:var(--muted)}
-.tabs button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--gold)}
-.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:10px;font-size:13px;display:none;z-index:9}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(400px,100%);overflow-y:auto;padding:28px 24px;border-radius:24px 0 0 24px;border-width:0 0 0 1px;box-shadow:-24px 0 60px rgba(10,31,24,.14);z-index:5}
+.panel h3{font-family:var(--display);font-size:22px;font-weight:700;margin:0}
+.panel .rep{border-top:1px solid var(--line);padding:14px 0;display:grid;grid-template-columns:1fr auto;gap:6px 10px}
+.panel .rep .p{font-weight:800;text-align:right}
+.seg{display:inline-flex;background:var(--sand-2);border-radius:999px;padding:3px;gap:2px;letter-spacing:0;text-transform:none}
+.seg button{border:0;background:none;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;border-radius:999px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--night);color:#fff}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--night);color:#fff;padding:12px 18px;border-radius:14px;font-size:13px;font-weight:700;display:none;z-index:9}
 .empty{padding:28px;color:var(--muted);text-align:center}
-.legend{font-size:12px;color:var(--muted);margin-top:8px}
+.legend{font-size:12px;color:var(--muted);margin-top:12px}
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:14px 16px;gap:6px}
+  .brand{margin:0 auto 0 0}
+  .nav{width:auto;padding:9px 12px;font-size:14px}
+  .side-foot{margin:0;flex-direction:row;width:100%}
+  .note{display:none}
+  .main{padding:20px 16px 40px}
+  h2{font-size:28px}
+}
 </style>
 </head>
 <body>
-<header class="mast">
-  <div class="wrap mast-row">
-    <div class="brand"><img src="icons/logo-mark.svg" alt="" width="34" height="34" style="border-radius:9px;display:block"><h1>Kasuwa</h1><span>Admin</span></div>
-    <div style="display:flex;gap:14px;align-items:center">
-      <a href="index.html">Open public app</a>
+<div class="shell">
+  <aside class="side">
+    <div class="brand"><img src="icons/logo-mark.svg" alt="" width="34" height="34"><h1>kasuwa</h1><span>ADMIN</span></div>
+    <div role="tablist" aria-label="Admin sections" style="display:contents">
+      <button type="button" class="nav" role="tab" aria-selected="true" data-tab="queue">Review queue <span class="count" id="navCount" hidden></span></button>
+      <button type="button" class="nav" role="tab" aria-selected="false" data-tab="log">Publish log</button>
+    </div>
+    <a class="nav" href="index.html">Open public app ↗</a>
+    <div class="side-foot">
+      <div class="note"><b>Engine runs</b>11:00 and 17:00 UTC (12:00 and 18:00 Lagos). Proposals refresh automatically; use Recompute after editing reports.</div>
       <button type="button" class="btn ghost small" id="logout" hidden>Sign out</button>
     </div>
-  </div>
-</header>
+  </aside>
 
-<main class="wrap">
-  <section id="loginView" class="login" hidden>
-    <h2>Sign in</h2>
-    <p>Use the admin password. It is the <b>ADMIN_TOKEN</b> value in Render → kasuwa-api → Environment.</p>
-    <form id="loginForm">
-      <label class="field" for="pw">Admin password<input id="pw" type="password" autocomplete="current-password" required></label>
-      <button class="btn" type="submit" id="loginBtn">Sign in</button>
-      <div class="err" id="loginErr" role="alert"></div>
-    </form>
-  </section>
+  <main class="main">
+    <section id="loginView" class="login" hidden>
+      <h2>Sign in</h2>
+      <p>Use the admin password. It is the <b>ADMIN_TOKEN</b> value in Render → kasuwa-api → Environment.</p>
+      <form id="loginForm">
+        <label class="field" for="pw">Admin password<input id="pw" type="password" autocomplete="current-password" required></label>
+        <button class="btn" type="submit" id="loginBtn">Sign in</button>
+        <div class="err" id="loginErr" role="alert"></div>
+      </form>
+    </section>
 
-  <section id="appView" hidden>
-    <div class="bar">
-      <div><h2>Review and publish prices</h2><div class="sub" id="apiInfo"></div></div>
-      <div class="spacer"></div>
-      <label class="field" for="day">Day<input type="date" id="day"></label>
-      <button type="button" class="btn ghost" id="refresh">Refresh</button>
-      <button type="button" class="btn ghost" id="propose" title="Recompute every proposal for this day from the reports">Recompute proposals</button>
-    </div>
-    <div class="tiles" id="tiles"></div>
-    <div class="tabs" role="tablist">
-      <button type="button" role="tab" aria-selected="true" data-tab="queue">Review queue</button>
-      <button type="button" role="tab" aria-selected="false" data-tab="log">Publish log</button>
-    </div>
-
-    <div id="queueTab">
+    <section id="appView" hidden>
       <div class="bar">
-        <div class="field">Show<div class="seg" id="statusSeg"></div></div>
-        <label class="field" for="fCom">Commodity<select id="fCom"><option value="">All commodities</option></select></label>
-        <label class="field" for="fState">State<select id="fState"><option value="">All states</option><option>Kano</option><option>Kaduna</option><option>Katsina</option></select></label>
+        <div><div class="eyebrow" id="dayLabel">Today</div><h2>Review and publish prices</h2><div class="sub" id="apiInfo"></div></div>
         <div class="spacer"></div>
-        <button type="button" class="btn" id="publishSel" disabled>Publish selected</button>
+        <label class="field" for="day">Day<input type="date" id="day"></label>
+        <button type="button" class="btn ghost" id="refresh">Refresh</button>
+        <button type="button" class="btn ghost" id="propose" title="Recompute every proposal for this day from the reports">Recompute</button>
       </div>
-      <div class="layout nopanel" id="layout">
-        <div class="card table-wrap"><table id="queue"></table></div>
-        <aside class="card panel" id="panel" hidden></aside>
-      </div>
-      <div class="legend">Final price starts at the engine's proposal. Change it to override; the log keeps both. Flags: <span class="pill bad">Big move</span> more than 20% from the last published price · <span class="pill warn">Outliers</span> reports set aside · <span class="pill quiet">Estimated</span> no usable reports today.</div>
-    </div>
+      <div class="tiles" id="tiles"></div>
 
-    <div id="logTab" hidden>
-      <div class="card table-wrap" style="margin-top:14px"><table id="log"></table></div>
-    </div>
-  </section>
-</main>
+      <div id="queueTab">
+        <div class="bar">
+          <div class="field">Show<div class="seg" id="statusSeg"></div></div>
+          <label class="field" for="fCom">Commodity<select id="fCom"><option value="">All commodities</option></select></label>
+          <label class="field" for="fState">State<select id="fState"><option value="">All states</option><option>Kano</option><option>Kaduna</option><option>Katsina</option></select></label>
+          <div class="spacer"></div>
+          <button type="button" class="btn" id="publishSel" disabled>Publish selected</button>
+        </div>
+        <div class="layout nopanel" id="layout">
+          <div class="card table-wrap"><table id="queue"></table></div>
+          <aside class="card panel" id="panel" hidden></aside>
+        </div>
+        <div class="legend">Final price starts at the engine's proposal. Change it to override; the log keeps both. Flags: <span class="pill bad">Big move</span> more than 20% from the last published price · <span class="pill warn">Outliers</span> reports set aside · <span class="pill quiet">Estimated</span> no usable reports today.</div>
+      </div>
+
+      <div id="logTab" hidden>
+        <div class="card table-wrap"><table id="log"></table></div>
+      </div>
+    </section>
+  </main>
+</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -262,7 +251,7 @@ function flags(i){
   return f.join("")||'<span class="sub">—</span>';
 }
 function statusPill(i){
-  return i.status==="published"?'<span class="pill good">Published</span>':i.status==="changed"?'<span class="pill warn">Changed since publish</span>':'<span class="pill quiet">Needs review</span>';
+  return i.status==="published"?'<span class="pill good">● Published</span>':i.status==="changed"?'<span class="pill bad">● Changed since publish</span>':'<span class="pill warn">● Needs review</span>';
 }
 function visible(){
   return S.items.filter(i=>(S.status==="all"||(S.status==="todo"?i.status!=="published":i.status==="published"))
@@ -273,9 +262,11 @@ function renderTiles(){
   const todo=S.items.filter(i=>i.status!=="published").length,flagged=S.items.filter(i=>i.status!=="published"&&(i.big_move||i.n_outliers||i.confidence_level==="low")).length;
   const pub=S.items.filter(i=>i.status==="published").length,reps=S.items.reduce((a,i)=>a+i.n_reports+i.n_outliers,0);
   $("tiles").innerHTML=`<div class="tile ${todo?"attn":""}"><div class="k">Needs review</div><div class="v">${todo}</div></div>
-   <div class="tile"><div class="k">Flagged</div><div class="v">${flagged}</div></div>
+   <div class="tile ${flagged?"flag":""}"><div class="k">Flagged</div><div class="v">${flagged}</div></div>
    <div class="tile"><div class="k">Published for this day</div><div class="v">${pub}</div></div>
    <div class="tile"><div class="k">Reports received</div><div class="v">${reps}</div></div>`;
+  const nc=$("navCount");if(nc){nc.textContent=todo;nc.hidden=!todo;}
+  const dl=$("dayLabel");if(dl){const d=new Date(S.day+"T12:00:00");if(!isNaN(d))dl.textContent=d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"});}
 }
 function renderQueue(){
   $("statusSeg").innerHTML=[["todo","To review"],["published","Published"],["all","All"]].map(([v,l])=>`<button type="button" data-status="${v}" aria-pressed="${S.status===v}">${l}</button>`).join("");
