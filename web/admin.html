@@ -97,6 +97,11 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--green)}
 .panel h3{font-family:var(--display);font-size:22px;font-weight:700;margin:0}
 .panel .rep{border-top:1px solid var(--line);padding:14px 0;display:grid;grid-template-columns:1fr auto;gap:6px 10px}
 .panel .rep .p{font-weight:800;text-align:right}
+.panel .rep b{text-transform:capitalize}
+.panel .seg{display:flex;width:100%}.panel .seg button{flex:1}
+.proposed{background:var(--bg);border-radius:18px;padding:14px;margin:16px 0}
+.proposed .k{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.proposed .v{font-family:var(--display);font-size:32px;font-weight:800;letter-spacing:-.03em;margin-top:4px}
 .seg{display:inline-flex;background:var(--sand-2);border-radius:999px;padding:3px;gap:2px;letter-spacing:0;text-transform:none}
 .seg button{border:0;background:none;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;border-radius:999px;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--night);color:#fff}
@@ -118,7 +123,7 @@ input[type=checkbox]{width:18px;height:18px;accent-color:var(--green)}
 <body>
 <div class="shell">
   <aside class="side">
-    <div class="brand"><img src="icons/logo-mark.svg" alt="" width="34" height="34"><h1>kasuwa</h1><span>ADMIN</span></div>
+    <div class="brand"><img src="icons/logo-mark-gold.svg" alt="" width="34" height="34"><h1>kasuwa</h1><span>ADMIN</span></div>
     <div role="tablist" aria-label="Admin sections" style="display:contents">
       <button type="button" class="nav" role="tab" aria-selected="true" data-tab="queue">Review queue <span class="count" id="navCount" hidden></span></button>
       <button type="button" class="nav" role="tab" aria-selected="false" data-tab="log">Publish log</button>
@@ -232,15 +237,22 @@ function showApp(){
   load();
 }
 
+function stamp(){$("apiInfo").textContent="Server: "+API_BASE.replace(/^https?:\/\//,"")+" · updated "+new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});}
 async function load(){
   $("queue").innerHTML=`<tbody><tr><td class="empty">Loading…</td></tr></tbody>`;
   try{
     S.items=await api("/admin/queue?day="+S.day);
     S.sel.clear();S.edits={};
-    renderAll();
+    renderAll();stamp();
     if(S.tab==="log")loadLog();
   }catch(e){$("queue").innerHTML=`<tbody><tr><td class="empty">Could not load the queue: ${esc(e.message)}</td></tr></tbody>`;}
 }
+/* New reports from the public site create or update proposals straight away.
+   Refresh the queue quietly every 60 s, but never while the admin is mid-review. */
+setInterval(async()=>{
+  if($("appView").hidden||S.tab!=="queue"||S.open||S.sel.size||Object.keys(S.edits).length||document.hidden)return;
+  try{S.items=await api("/admin/queue?day="+S.day);renderAll();stamp();}catch(e){}
+},60000);
 const key=i=>i.market_id+"|"+i.commodity_id;
 function flags(i){
   const f=[];
@@ -263,7 +275,7 @@ function renderTiles(){
   const pub=S.items.filter(i=>i.status==="published").length,reps=S.items.reduce((a,i)=>a+i.n_reports+i.n_outliers,0);
   $("tiles").innerHTML=`<div class="tile ${todo?"attn":""}"><div class="k">Needs review</div><div class="v">${todo}</div></div>
    <div class="tile ${flagged?"flag":""}"><div class="k">Flagged</div><div class="v">${flagged}</div></div>
-   <div class="tile"><div class="k">Published for this day</div><div class="v">${pub}</div></div>
+   <div class="tile"><div class="k">${S.day===lagosToday()?"Published today":"Published for this day"}</div><div class="v">${pub}</div></div>
    <div class="tile"><div class="k">Reports received</div><div class="v">${reps}</div></div>`;
   const nc=$("navCount");if(nc){nc.textContent=todo;nc.hidden=!todo;}
   const dl=$("dayLabel");if(dl){const d=new Date(S.day+"T12:00:00");if(!isNaN(d))dl.textContent=d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"});}
@@ -300,12 +312,12 @@ function renderPanel(){
   const [m,c]=S.open.split("|"),i=S.items.find(x=>key(x)===S.open);
   const dec=r=>r.decision||"auto";
   p.innerHTML=`<div style="display:flex;justify-content:space-between;gap:8px;align-items:start"><div><h3>${esc(mName(m))}</h3><div class="sub">${esc(cName(c))} · ${esc(S.day)}</div></div><button type="button" class="btn ghost small" id="closePanel" aria-label="Close">✕</button></div>
-   ${i?`<div style="margin:10px 0 4px">Proposed <b>${naira(i.proposed_price)}</b> from ${i.n_reports} report${i.n_reports===1?"":"s"}</div>`:""}
+   ${i?`<div class="proposed"><div class="k">Proposed from ${i.n_reports} report${i.n_reports===1?"":"s"}</div><div class="v">${naira(i.proposed_price)}</div></div>`:""}
    ${S.reports===null?'<div class="empty">Loading reports…</div>':S.reports.length?S.reports.map(r=>{
      const st=r.status==="accepted"?'<span class="pill good">Used</span>':r.status==="outlier"?'<span class="pill warn">Outlier</span>':r.status==="excluded"?'<span class="pill bad">Excluded</span>':`<span class="pill quiet">${esc(r.status)}</span>`;
      const t=new Date(r.reported_at);
      return `<div class="rep"><div><b>${esc(r.reporter_type)}</b> <span class="sub">${esc(r.phone||"no phone")} · ${t.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</span><div class="sub">Sent ${naira(r.raw_price)} per ${r.unit==="bag100"?"100 kg bag":r.unit==="bag50"?"50 kg bag":"mudu"} · weight ${r.trust}</div></div><div class="p">${naira(r.price_per_100kg)}<div>${st}</div></div>
-      <div style="grid-column:1/-1" class="seg" role="group" aria-label="Decision for report ${r.id}">${["auto","include","exclude"].map(d=>`<button type="button" data-rev="${r.id}" data-dec="${d}" aria-pressed="${dec(r)===d}">${d==="auto"?"Let the model decide":d==="include"?"Always use":"Leave out"}</button>`).join("")}</div></div>`;}).join(""):'<div class="empty">No reports for this day. The proposal is an estimate from the last published price.</div>'}`;
+      <div style="grid-column:1/-1" class="seg" role="group" aria-label="Decision for report ${r.id}">${["auto","include","exclude"].map(d=>`<button type="button" data-rev="${r.id}" data-dec="${d}" aria-pressed="${dec(r)===d}">${d==="auto"?"Model decides":d==="include"?"Always use":"Leave out"}</button>`).join("")}</div></div>`;}).join(""):'<div class="empty">No reports for this day. The proposal is an estimate from the last published price.</div>'}`;
 }
 function renderAll(){renderTiles();renderQueue();renderPanel();}
 

@@ -156,16 +156,29 @@ Open `admin.html` on the same site as the app (for example `https://kasuwa-web.o
 
 The page itself is public, but every action needs the password. Use a long, random `ADMIN_TOKEN` and change it if it leaks.
 
-## Photos and logo
+## Brand and design
 
-- The logo is `web/icons/logo-mark.svg`; app icons (`icon-*.png`) are made from it.
-- Photos live in `web/images/`. Download the starter set once (free Unsplash photos, credits in `web/images/CREDITS.md`):
+The design source is the Figma file **Kasuwa — Rebrand** (brand board, phone screens, web home and admin). Keep code and Figma in step: change Figma first, then the CSS variables at the top of `web/index.html` and `web/admin.html`.
 
-  ```bash
-  bash web/images/get-photos.sh
-  ```
+| Token | Value | Use |
+| --- | --- | --- |
+| Sahel green | `#0B5D44` | primary, price cards, links |
+| Night | `#0A1F18` | text, tab bar, footer, admin sidebar |
+| Millet gold | `#F5A524` | buttons and actions |
+| Kano indigo | `#2C3E8F` | Kaduna markets, data accent |
+| Laterite | `#C4622D` | Katsina markets, warnings |
+| Sand / Paper / Line | `#F7F3EA` / `#FFFFFF` / `#E4DDCC` | background, cards, borders |
+| Up / Down | `#178A52` / `#C23B2A` | price changes |
 
-- Replace any photo with your own by saving it under the same name. If a photo is missing, the app shows a drawing instead, so nothing breaks.
+- **Type:** Bricolage Grotesque (headings and prices), Manrope (everything else), from Google Fonts.
+- **Pattern:** the Arewa zigzag, used behind the green price card and the agents panel, never behind numbers.
+- **Logo:** an ear of grain between two price bars. `web/icons/logo-mark.svg` (green tile, gold grain) is the app icon; `web/icons/logo-mark-gold.svg` (gold tile, dark grain) is used on dark backgrounds (footer, admin). The wordmark is lowercase **kasuwa** set in Bricolage Grotesque. App icons (`icon-*.png`) are rendered from the SVG; the maskable icon keeps the mark inside the safe zone.
+
+## Photos
+
+- Brand photos are `web/images/img-01` … `img-14` (WebP, quality 75), plus `img-02-og-share.jpg` for link previews. See `web/images/CREDITS.md`.
+- White sorghum, brown beans and rice still use the older stock-photo names; run `bash web/images/get-photos.sh` once to fetch them, or add brand photos with those names.
+- If a photo is missing, the app shows a drawing instead, so nothing breaks.
 
 ## How the front end finds the API
 
