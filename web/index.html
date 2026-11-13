@@ -576,9 +576,10 @@ form.stack{display:flex;flex-direction:column;gap:12px}
       <div>
         <form class="stack" id="repForm">
           <div class="form-grid">
+            <label class="ffield" for="repState"><span data-i="stateLbl">State</span><select id="repState"></select></label>
             <label class="ffield" for="repMarket"><span data-i="market">Market</span><select id="repMarket"></select></label>
-            <label class="ffield" for="repCom"><span data-i="commodity">Commodity</span><select id="repCom"></select></label>
           </div>
+          <label class="ffield" for="repCom"><span data-i="commodity">Commodity</span><select id="repCom"></select></label>
           <div class="units" id="unitBtns" role="group" aria-label="Unit">
             <button type="button" data-runit="bag100" aria-pressed="true" data-i="bag">100 kg bag</button>
             <button type="button" data-runit="bag50" aria-pressed="false" data-i="bag50">50 kg bag</button>
@@ -715,7 +716,7 @@ const T={
   tagline:"Farashin hatsi kullum · Kano, Kaduna, Katsina",asof:"Farashin",heroTitle:"San farashin yau kafin ka sayar",heroLede:"Farashin masara, dawa, waken soya, ridi, wake da sauransu kullum daga kasuwanni 18 a Kano, Kaduna da Katsina.",hsMarkets:"kasuwanni",hsGrades:"nau'in hatsi",hsUpdates:"sabuntawa sau biyu a rana",ctaPrices:"Duba farashin yau",ctaReport:"Aiko da farashi",compareShort:"Kwatanta",reportShort:"Aiko",heroEyebrow:"Kasuwannin hatsi na Arewa",hsStates:"jihohi",swipe:"Ja don ganin ƙari",credits:"Masu hotuna",avgNow:"matsakaici yau",noPrice:"Babu farashi tukuna",heroQuoteNone:"Farashi zai bayyana bayan an duba rahotannin farko.",repPhone:"Lambar waya (ba dole ba)",repArtTitle:"Ka ga farashi a kasuwa?",repArtSub:"Wakilai, 'yan kasuwa da manoma duk suna taimakawa farashi ya zama gaskiya."}
 };
 /* copy for the rebranded layout (Figma "Kasuwa — Rebrand") */
-Object.assign(T.en,{hsCommodities:"commodities",marketsToday:"Markets today",heroEyebrow:"Live from 18 markets in Kano, Kaduna & Katsina",heroTitle:"Today's grain prices, checked and fair.",
+Object.assign(T.en,{stateLbl:"State",hsCommodities:"commodities",marketsToday:"Markets today",heroEyebrow:"Live from 18 markets in Kano, Kaduna & Katsina",heroTitle:"Today's grain prices, checked and fair.",
   heroLede:"Know the real price of maize, sorghum, sesame and more before you sell or buy. No middlemen guessing for you, every price is checked by the Kasuwa team before it is published.",
   hsGrades:"grain grades",hsUpdates:"updates daily",badge:"✓ Checked by the Kasuwa team",badgeDemo:"Demo prices · not real",
   commodities:"Commodities",comTitle:"What are you trading today?",showAll:"All 12 grades →",showFewer:"Show fewer",board:"Price board",acrossAll:"across every market",
@@ -728,7 +729,7 @@ Object.assign(T.en,{hsCommodities:"commodities",marketsToday:"Markets today",her
   tagline:"Farashin kasuwa · Fair grain prices for Northern Nigeria.",priceSeen:"Price you saw",
   reportLede:"Saw a price at the market? Every report is checked by the price model and the Kasuwa team before prices are published.",
   trend30:"30-day trend",fcNext:"Forecast · next 7 days",likely:"Likely range",perBag:"per 100 kg bag",avgMk:"avg.",mkts:"markets",published:"Published",updated:"Status",chgCol:"Change",anchorMk:"anchor market",reportsN:"reports"});
-Object.assign(T.ha,{hsCommodities:"nau'in amfanin gona",marketsToday:"Kasuwannin yau",heroEyebrow:"Kai tsaye daga kasuwanni 18 a Kano, Kaduna da Katsina",heroTitle:"Farashin hatsi na yau, an duba, kuma na gaskiya.",
+Object.assign(T.ha,{stateLbl:"Jiha",hsCommodities:"nau'in amfanin gona",marketsToday:"Kasuwannin yau",heroEyebrow:"Kai tsaye daga kasuwanni 18 a Kano, Kaduna da Katsina",heroTitle:"Farashin hatsi na yau, an duba, kuma na gaskiya.",
   heroLede:"San ainihin farashin masara, dawa, ridi da sauransu kafin ka sayar ko ka saya. Babu dillali da zai yi maka hasashe; ƙungiyar Kasuwa tana duba kowane farashi kafin a wallafa shi.",
   hsGrades:"nau'in hatsi",hsUpdates:"sabuntawa a rana",badge:"✓ Ƙungiyar Kasuwa ta duba",badgeDemo:"Farashin misali · ba na gaske ba",
   commodities:"Kaya",comTitle:"Me kake ciniki yau?",showAll:"Duk nau'i 12 →",showFewer:"Nuna kaɗan",board:"Allon farashi",acrossAll:"a duk kasuwanni",
@@ -906,6 +907,11 @@ function pill(r){const lv=confLevel(r.conf);return `<span class="pill ${lv}" tit
 function statusTag(r){if(!r.est)return "";return `<span class="tag">${r.reason==="closed"?t("closed"):r.reason==="stale"?t("stale"):t("est")}</span>`;}
 function spark(arr){if(arr.length<2)return `<span class="muted" style="font-size:12px">—</span>`;const v=arr.map(r=>r.price),mn=Math.min(...v),mx=Math.max(...v),w=96,h=26;const pts=v.map((p,i)=>[i/(v.length-1)*w,h-2-(p-mn)/(mx-mn||1)*(h-4)]);const d=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join("");const l=pts[pts.length-1];
   return `<svg class="spark" width="${w+4}" height="${h}" viewBox="0 0 ${w+4} ${h}" aria-hidden="true"><path d="${d}L${w} ${h}L0 ${h}Z" fill="var(--indigo)" opacity=".08"/><path d="${d}" fill="none" stroke="var(--muted)" stroke-width="1.3"/><circle cx="${l[0]}" cy="${l[1]}" r="2.6" fill="var(--gold)"/></svg>`;}
+function fillMarkets(el,val,st){
+  const sts=st&&st!=="All"?[st]:STATES;
+  el.innerHTML=sts.map(S=>`<optgroup label="${S}">`+MARKETS.filter(m=>m.st===S).map(m=>`<option value="${m.id}"${m.id===val?" selected":""}>${esc(m.name)}${m.anchor?" ★":""}</option>`).join("")+`</optgroup>`).join("");
+  if(!el.value&&el.options.length)el.selectedIndex=0;
+}
 function fillSelect(el,items,val){el.innerHTML=items.map(([v,l])=>`<option value="${v}"${v===val?" selected":""}>${esc(l)}</option>`).join("");}
 function emptyMsg(c){const name=esc(comLabel(comById(c)));return LANG==="ha"
   ?`Babu farashin ${name} tukuna. Farashi zai bayyana bayan rahotannin farko. <a href="#report">Aiko da farashi</a>.`
@@ -992,7 +998,7 @@ function renderArb(){
 }
 
 function renderTrends(){
-  fillSelect($("trMarket"),MARKETS.map(m=>[m.id,m.name+", "+m.st]),state.trMarket);
+  fillMarkets($("trMarket"),state.trMarket);
   fillSelect($("trCom"),COMS.map(c=>[c.id,comLabel(c)]),state.trCom);
   $("periodSeg").innerHTML=[7,30,90,120].map(p=>`<button type="button" data-period="${p}" aria-pressed="${p===state.period}">${p}D</button>`).join("");
   const tc=comById(state.trCom),tm=mkById(state.trMarket);
@@ -1056,7 +1062,7 @@ let alertsMem=[];
 function loadAlerts(){try{return JSON.parse(localStorage.getItem("kasuwa-alerts")||"null")||alertsMem;}catch(e){return alertsMem;}}
 function saveAlerts(a){alertsMem=a;try{localStorage.setItem("kasuwa-alerts",JSON.stringify(a));}catch(e){}}
 function renderAlerts(){
-  if(!$("alCom").options.length){fillSelect($("alCom"),COMS.map(c=>[c.id,comLabel(c)]),"maize-white");fillSelect($("alMarket"),MARKETS.map(m=>[m.id,m.name+", "+m.st]),"dawanau");const d=latest("dawanau","maize-white");if(d)$("alPrice").value=Math.round(d.price/500)*500+1000;}
+  if(!$("alCom").options.length){fillSelect($("alCom"),COMS.map(c=>[c.id,comLabel(c)]),"maize-white");fillMarkets($("alMarket"),"dawanau");const d=latest("dawanau","maize-white");if(d)$("alPrice").value=Math.round(d.price/500)*500+1000;}
   const list=loadAlerts().filter(a=>comById(a.c)&&mkById(a.m));
   $("alertList").innerHTML=list.length?list.map((a,i)=>{const r=latest(a.m,a.c),p=r?r.price:null,hit=p!=null&&(a.cond==="above"?p>a.price:p<a.price);
     return `<li><div>${comPhoto(comById(a.c),"mini-ic")}<b>${esc(comLabel(comById(a.c)))}</b> · ${esc(mkById(a.m).name)}<div class="muted" style="font-size:13px">${a.cond==="above"?(LANG==="ha"?"Sama da":"Above"):(LANG==="ha"?"Ƙasa da":"Below")} ${naira(a.price)} · ${esc(a.phone)} · ${LANG==="ha"?"yau":"now"} ${p!=null?naira(p):"—"}</div></div><div style="display:flex;gap:10px;align-items:center"><span class="status ${hit?"ok":"held"}">${hit?(LANG==="ha"?"Zai aika yau":"Would trigger today"):(LANG==="ha"?"Ana jira":"Waiting")}</span><button type="button" class="btn ghost" data-del="${i}" aria-label="Delete alert">✕</button></div></li>`;}).join(""):`<li class="muted">${LANG==="ha"?"Babu sanarwa tukuna.":"No alerts yet. Add one on the left."}</li>`;
@@ -1066,10 +1072,14 @@ function renderAlerts(){
 const REP_LABEL=()=>({agent:LANG==="ha"?"Wakili":"Agent",trader:LANG==="ha"?"Ɗan kasuwa":"Trader",farmer:LANG==="ha"?"Manomi":"Farmer",sale:LANG==="ha"?"Ciniki":"Sale"});
 const REP_STATUS=()=>({accepted:[LANG==="ha"?"An karɓa":"Accepted","ok"],outlier:[LANG==="ha"?"An ware":"Set aside","bad"],held:[LANG==="ha"?"Ana jira":"Held","held"],pending:[LANG==="ha"?"Ana dubawa":"Pending","held"]});
 function renderReport(){
-  if(!$("repMarket").options.length){fillSelect($("repMarket"),MARKETS.map(m=>[m.id,m.name+", "+m.st]),state.repMarket);fillSelect($("repCom"),COMS.map(c=>[c.id,comLabel(c)]),state.repCom);}
+  if(!$("repMarket").options.length){
+    state.repState=state.repState||"All";
+    fillSelect($("repState"),[["All",LANG==="ha"?"Duk jihohi":"All states"],...STATES.map(S=>[S,S])],state.repState);
+    fillMarkets($("repMarket"),state.repMarket,state.repState);fillSelect($("repCom"),COMS.map(c=>[c.id,comLabel(c)]),state.repCom);}
   renderReportTable();
 }
 function renderReportTable(){
+  {const rs=$("repState");if(rs.options.length)rs.options[0].text=LANG==="ha"?"Duk jihohi":"All states";}
   const m=state.repMarket,c=state.repCom,reps=todayReports[m][c],r=latest(m,c);
   $("repSummary").innerHTML=`${esc(mkById(m).name)} · ${esc(comLabel(comById(c)))} — ${LANG==="ha"?"farashin yau":"published"} `+(r?`<b>${naira(r.price)}</b> ${pill(r)} ${statusTag(r)}`:`<b>—</b> <span class="muted">${LANG==="ha"?"babu tukuna":"none yet"}</span>`);
   if(MODE==="live"){
@@ -1140,6 +1150,12 @@ $("alertForm").addEventListener("submit",e=>{e.preventDefault();const a=loadAler
 function repHint(){const raw=+$("repPrice").value,u=$("repUnit").value,com=comById(state.repCom);const el=$("repHint");if(!el)return;
   if(!raw){el.innerHTML="&nbsp;";return;}const p=u==="bag100"?raw:u==="bag50"?raw*2:raw/com.mudu*100;el.textContent=(LANG==="ha"?"Za a rubuta a matsayin ":"Recorded as ")+naira(p)+(LANG==="ha"?" kowane kg 100":" per 100 kg");}
 $("repPrice").addEventListener("input",repHint);
+$("repState").addEventListener("change",e=>{
+  state.repState=e.target.value;
+  const mk=mkById(state.repMarket);
+  if(state.repState!=="All"&&mk.st!==state.repState){const f=MARKETS.find(m=>m.st===state.repState);state.repMarket=f.id;}
+  fillMarkets($("repMarket"),state.repMarket,state.repState);$("repResult").hidden=true;renderReport();
+});
 $("repMarket").addEventListener("change",e=>{state.repMarket=e.target.value;$("repResult").hidden=true;renderReport();});
 $("repCom").addEventListener("change",e=>{state.repCom=e.target.value;$("repResult").hidden=true;repHint();renderReport();});
 
